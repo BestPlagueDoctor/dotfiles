@@ -1,4 +1,6 @@
 final: prev: {
+  hyprland = prev.hyprland.override { nvidiaPatches = true; };
+
   cryptsetup = prev.cryptsetup.overrideAttrs (_: {
     doCheck = false;
   });

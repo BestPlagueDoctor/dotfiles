@@ -5,12 +5,12 @@
 
   fileSystems = {
     "/boot" = {
-      device = "/dev/disk/by-uuid/80DA-1766";
+      device = "/dev/disk/by-label/boot";
       fsType = "vfat";
     };
 
     "/" = {
-      device = "/dev/disk/by-uuid/b4e50c99-01fd-4d34-a9da-b7ca7b2c1f99";
+      device = "/dev/disk/by-label/root";
       fsType = "ext4";
     };
   };
@@ -19,7 +19,7 @@
     initrd = {
       includeDefaultModules = false;
       verbose = false;
-      kernelModules = [ "nvidia" ];
+      kernelModules = [ "nvme" "nvidia" ];
     };
 
     #supportedFilesystems = [ "zfs" ];
@@ -32,6 +32,7 @@
     ];
 
     kernelPackages = pkgs.callPackage ./kernel.nix { };
+
 
     kernelParams = [
       "elevator=none"
@@ -105,6 +106,7 @@
       "fs.protected_fifos" = 2;
       "fs.protected_regular" = 2;
     };
+
 
     loader = {
       efi.canTouchEfiVariables = true;
@@ -264,6 +266,7 @@
       forwardX11 = true;
       logLevel = "VERBOSE";
       passwordAuthentication = false;
+      ports = [ 22 2222 ];
     };
 
     pipewire = {
@@ -387,7 +390,7 @@
     };
 
     tpm2 = {
-      enable = true;
+      enable = false;
       abrmd.enable = true;
       pkcs11.enable = true;
       tctiEnvironment.enable = true;
@@ -491,7 +494,6 @@
   programs = {
     adb.enable = true;
     dconf.enable = true;
-    hyprland.enable = true;
     mtr.enable = true;
     nix-ld.enable = true;
     zsh.enable = true;
@@ -499,6 +501,11 @@
     custom.ddcutil = {
       enable = true;
       users = [ user.login ];
+    };
+
+    hyprland = {
+      enable = true;
+      package = inputs.hyprland.packages.${pkgs.system}.default.override { nvidiaPatches = true; };
     };
 
     neovim = {
