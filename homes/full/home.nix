@@ -140,6 +140,7 @@ in
 
       breeze-icons
       gnome.adwaita-icon-theme
+      material-design-icons
 
       fira-code
       fira-code-symbols
@@ -147,6 +148,7 @@ in
       noto-fonts
       noto-fonts-cjk
       noto-fonts-emoji
+      hack-font
 
       gtk3
     ])
@@ -181,8 +183,8 @@ in
       streamlink
       vlc
       yt-dlp
-      ncspot
       spotify
+      ncspot
     ])
     ++
     (with pkgs.pkgsMusl; [

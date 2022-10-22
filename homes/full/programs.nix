@@ -621,20 +621,105 @@
     enable = true;
     settings = {
       mainBar = {
-        output = [ "DP-2" ];
+        # setting monitor to x220 for testing
+        output = [ "LVDS-1" ];
+        layer = "top";
+        position = "top";
+        height = 24;
+        width = 1366;
+        modules-left = [
+          "wlr/workspaces"
+          "wlr/mode"
+          "custom/weather"
+        ];
+        modules-center = [ "custom/spotify" "hyprland/window" ];
         modules-right = [
-          "idle_inhibitor"
           "pulseaudio"
           "network"
+          "temperature"
           "cpu"
           "memory"
-          "temperature"
-          "backlight"
-          "keyboard-state"
-          "sway/language"
-          "clock"
+          "battery"
           "tray"
+          "clock"
         ];
+        "wlr/workspaces" = {
+          disable-scroll = true;
+          all-outputs = false;
+          on-click = "activate";
+          format = "{icon}";
+          format-icons = {
+              "1" = "󰖟";
+              "2" = "";
+              "active" = "";
+              "default" = "󰝦";
+          };
+        };
+        "wlr/mode" = { format = "<span style=\"italic\">{}</span>"; };
+        "tray" = {
+          # "icon-size" = 21,
+          "spacing" = 10;
+        };
+        "clock" = { "format-alt" = "{:%Y-%m-%d}"; };
+        "cpu"= { 
+          "format"= "{usage}% 󰍛"; 
+        };
+        "memory"= { "format"= "{}% "; };
+
+        "temperature" = { 
+          "critical-threshold" = 80;  
+          "format" = "{}℃  󰏈"; 
+          "format-critical" = "{}℃ 󰇺";
+          "interval" = 5;
+        };
+
+        "battery"= {
+            "bat"= "BAT0";
+            "states"= {
+                # "good"= 95;
+                "warning"= 30;
+                "critical"= 15;
+            };
+            "format"= "{capacity}% {icon}";
+            # "format-good"= ""; # An empty format will hide the module
+            # "format-full"= "";
+            "format-icons"= ["" "" "" "" ""];
+        };
+        "network"= {
+            # "interface"= "wlp2s0"; # (Optional) To force the use of this interface
+            "format-wifi"= "{essid} ({signalStrength}%) ";
+            "format-ethernet"= "{ifname}= {ipaddr}/{cidr} ";
+            "format-disconnected"= "Disconnected ⚠";
+        };
+        "pulseaudio"= {
+            #"scroll-step"= 1;
+            "format"= "{volume}% {icon}";
+            "format-bluetooth"= "{volume}% {icon}";
+            "format-muted"= "";
+            "format-icons"= {
+                "headphones" = "";
+                "handsfree" = "";
+                "headset" = "";
+                "phone" = "";
+                "portable" = "";
+                "car" = "";
+                "default" = [ "" "" ];
+            };
+            "on-click"= "pavucontrol";
+        };
+        "custom/spotify"= {
+            "format"= " {}";
+            "max-length"= 40;
+            "interval"= 10; # Remove this if your script is endless and write in loop
+            "exec"= "$HOME/.config/waybar/mediaplayer.sh 2> /dev/null"; # Script in resources folder
+            "exec-if"= "pgrep spotify || pgrep ncspot";
+        };
+        "hyprland/window" = { "format" = {}; };
+        "custom/weather" = {
+          format = "{}";
+          exec = "curl -s wttr.in/Urbana\?format=\"%l:+%C,+%t+%w+%p\"";
+          interval = 1800;
+        };
       };
     };
   };
