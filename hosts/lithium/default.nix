@@ -17,7 +17,7 @@
 
   boot = {
     initrd = {
-      includeDefaultModules = false;
+      #includeDefaultModules = false;
       verbose = false;
       kernelModules = [ "nvme" "nvidia" ];
     };
@@ -31,8 +31,9 @@
       "ib_ipoib"
     ];
 
-    kernelPackages = pkgs.callPackage ./kernel.nix { };
+    #kernelPackages = pkgs.callPackage ./kernel.nix { };
 
+/*
 
     kernelParams = [
       "elevator=none"
@@ -107,6 +108,7 @@
       "fs.protected_regular" = 2;
     };
 
+*/
 
     loader = {
       efi.canTouchEfiVariables = true;
@@ -128,6 +130,7 @@
 
     interfaces."enp6s0" = {
       useDHCP = true;
+      wakeOnLan.enable = true;
     };
   };
 

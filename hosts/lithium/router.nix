@@ -58,6 +58,7 @@ in
 {
   networking = {
     firewall = {
+      allowedTCPPorts = [ 8009 8010 ];
       allowPing = false;
 
       interfaces.${lan} = {

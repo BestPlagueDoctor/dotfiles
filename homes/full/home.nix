@@ -77,7 +77,7 @@ in
       ipfs
       miraclecast
       mosh
-      #remmina
+      remmina
       scrcpy
       w3m
       wayvnc
