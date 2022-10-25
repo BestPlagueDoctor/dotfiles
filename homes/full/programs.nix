@@ -717,7 +717,7 @@
         "hyprland/window" = { "format" = {}; };
         "custom/weather" = {
           format = "{}";
-          exec = "curl -s wttr.in/Urbana\?format=\"%l:+%C,+%t+%w+%p\"";
+          exec = "curl -s wttr.in/\?format=\"%l:+%C,+%t+%w+%p\n\" | awk -F \, \'{ print $1 }\' | cut -c 2-";
           interval = 1800;
         };
       };

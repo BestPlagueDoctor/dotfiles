@@ -298,5 +298,7 @@ in
     vim = "$EDITOR -t";
 
     rscp = "rsync -ahvP";
+
+    hl = "exec Hyprland";
   };
 }
