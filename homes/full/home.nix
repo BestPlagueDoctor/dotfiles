@@ -77,7 +77,7 @@ in
       ipfs
       miraclecast
       mosh
-      remmina
+      #remmina
       scrcpy
       w3m
       wayvnc
@@ -203,7 +203,7 @@ in
     ])
     ++
     (with pkgs.pkgsMusl; [
-      weechat
+      #weechat
     ]);
 
   file = {

@@ -622,11 +622,10 @@
     settings = {
       mainBar = {
         # setting monitor to x220 for testing
-        output = [ "LVDS-1" ];
+        output = [ "HDMI-A-2" ];
         layer = "top";
         position = "top";
         height = 24;
-        width = 1366;
         modules-left = [
           "wlr/workspaces"
           "wlr/mode"

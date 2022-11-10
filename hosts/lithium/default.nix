@@ -297,7 +297,7 @@
     udev = {
       packages = with pkgs; [
         ledger-udev-rules
-        platformio
+        #platformio
         yubikey-personalization
       ];
 
@@ -402,7 +402,7 @@
 
   virtualisation = {
     spiceUSBRedirection.enable = true;
-    waydroid.enable = true;
+    #waydroid.enable = true;
 
     libvirtd = {
       enable = false;
