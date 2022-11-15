@@ -189,7 +189,6 @@ in
       yt-dlp
       spotify
       ncspot
-
       playerctl
     ])
     ++
@@ -204,7 +203,6 @@ in
       kotatogram-desktop
       slack
       zoom-us
-
       #weechat
     ])
     ++
