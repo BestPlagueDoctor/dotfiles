@@ -7,10 +7,43 @@
 
   nix = {
     settings.trusted-users = [ "@wheel" ];
+    settings.builders-use-substitutes = true;
     package = pkgs.nixUnstable;
     extraOptions = ''
       experimental-features = nix-command flakes ca-derivations
     '';
+
+    buildMachines = [
+      {
+        hostName = "home.armeen.org";
+        sshKey = "/home/sam/.ssh/id_ecdsa";
+        sshUser = "sam";
+        supportedFeatures = [ "kvm" "big-parallel" "ca-derivations" "nixos-test" ];
+        system = "x86_64-linux,aarch64-linux,i686-linux";
+        maxJobs = 32;
+        speedFactor = 100;
+      }
+
+      {
+        hostName = "67.173.100.107:2222";
+        sshKey = "/home/sam/.ssh/id_ecdsa";
+        sshUser = "sam";
+        supportedFeatures = [ "kvm" "big-parallel" "ca-derivations" "nixos-test" ];
+        system = "x86_64-linux,aarch64-linux,i686-linux";
+        maxJobs = 32;
+        speedFactor = 80;
+      }
+
+      {
+        hostName = "67.173.100.107";
+        sshKey = "/home/sam/.ssh/id_ecdsa";
+        sshUser = "sam";
+        supportedFeatures = [ "kvm" "big-parallel" "ca-derivations" "nixos-test" ];
+        system = "x86_64-linux,aarch64-linux,i686-linux";
+        maxJobs = 32;
+        speedFactor = 5;
+      }
+    ];
   };
 
   boot = {
