@@ -39,9 +39,7 @@ in
       sops
       tldr
       xplr
-    ])
-    ++
-    (with pkgs.pkgsMusl; [
+
       btop
       cloc
       fasd
@@ -65,6 +63,9 @@ in
       zip
     ])
     ++
+    (with pkgs.pkgsMusl; [
+    ])
+    ++
 
     ## Networking ##
     (with pkgs; [
@@ -83,14 +84,15 @@ in
       wayvnc
       wireshark
       xh
-    ])
-    ++
-    (with pkgs.pkgsMusl; [
+
       ldns
       nmap
       speedtest-cli
       wget
       whois
+    ])
+    ++
+    (with pkgs.pkgsMusl; [
     ])
     ++
 
@@ -151,9 +153,7 @@ in
       hack-font
 
       gtk3
-    ])
-    ++
-    (with pkgs.pkgsMusl; [
+
       tamsyn
       xdg-user-dirs
       xdg-utils
@@ -161,17 +161,21 @@ in
       xorg.xkill
     ])
     ++
+    (with pkgs.pkgsMusl; [
+    ])
+    ++
 
     ## Windows ##
     (with pkgs; [
       ntfs3g
       wineWowPackages.stable
-    ])
-    ++
-    (with pkgs.pkgsMusl; [
+
       dosfstools
       efibootmgr
       exfatprogs
+    ])
+    ++
+    (with pkgs.pkgsMusl; [
     ])
     ++
 
@@ -185,10 +189,11 @@ in
       yt-dlp
       spotify
       ncspot
+
+      playerctl
     ])
     ++
     (with pkgs.pkgsMusl; [
-      playerctl
     ])
     ++
 
@@ -198,12 +203,12 @@ in
       element-desktop
       kotatogram-desktop
       slack
-      whatsapp-for-linux
       zoom-us
+
+      #weechat
     ])
     ++
     (with pkgs.pkgsMusl; [
-      #weechat
     ]);
 
   file = {

@@ -629,9 +629,10 @@
         modules-left = [
           "wlr/workspaces"
           "wlr/mode"
-          "custom/weather"
+          "custom/weather" 
+          "custom/spotify"
         ];
-        modules-center = [ "custom/spotify" "hyprland/window" ];
+        modules-center = [ "hyprland/window" ];
         modules-right = [
           "pulseaudio"
           "network"
@@ -716,7 +717,7 @@
         "hyprland/window" = { "format" = {}; };
         "custom/weather" = {
           format = "{}";
-          exec = "curl -s wttr.in/\?format=\"%l:+%C,+%t+%w+%p\n\" | awk -F \, \'{ print $1 }\' | cut -c 2-";
+          exec = "curl -s wttr.in/\?format=\"%l:+%C,+%t+%w+%p\n\"";
           interval = 1800;
         };
       };

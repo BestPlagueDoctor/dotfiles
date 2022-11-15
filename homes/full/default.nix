@@ -20,5 +20,6 @@ in
     imports = [ config.nur.repos.rycee.hmModules.emacs-init ];
 
     fonts.fontconfig.enable = lib.mkForce true;
+    manual.manpages.enable = false;
   };
 }
