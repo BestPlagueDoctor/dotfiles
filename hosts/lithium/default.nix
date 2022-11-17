@@ -209,21 +209,22 @@
       }
     ];
 
-      substituters = [
-        "https://cache.ngi0.nixos.org"
-        "https://nix-community.cachix.org"
-      ];
 
-      trusted-public-keys = [
-        "cache.ngi0.nixos.org-1:KqH5CBLNSyX184S9BKZJo1LxrxJ9ltnY2uAs5c/f1MA="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      ];
 
     settings = {
       allowed-users = lib.mkForce [ "@wheel" ];
       trusted-users = lib.mkForce [ "@wheel" ];
       builders-use-substitutes = true;
-
+      require-sigs = false;
+      substituters = [
+        "https://cache.ngi0.nixos.org"
+        "https://nix-community.cachix.org"
+        "ssh://sam@home.armeen.org?ssh-key=/home/sam/.ssh/id_ecdsa"
+      ];
+      trusted-public-keys = [
+        "cache.ngi0.nixos.org-1:KqH5CBLNSyX184S9BKZJo1LxrxJ9ltnY2uAs5c/f1MA="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      ];
     };
 
     extraOptions = ''
