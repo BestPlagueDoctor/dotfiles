@@ -118,3 +118,6 @@ tags
 ### Direnv ###
 .envrc
 .direnv
+
+## dotfiles specific ##
+hyprland.conf
