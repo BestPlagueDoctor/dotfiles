@@ -621,8 +621,13 @@
     enable = true;
     settings = {
       mainBar = {
+<<<<<<< HEAD
         # setting monitor to x220 for testing
         output = [ "LVDS-1" ];
+=======
+        # setting monitor to desky to force a rebuild :)
+        output = [ "HDMI-A-1" ];
+>>>>>>> refs/remotes/origin/master
         layer = "top";
         position = "top";
         height = 24;
@@ -714,7 +719,10 @@
             "exec"= "$HOME/.config/waybar/mediaplayer.sh 2> /dev/null"; # Script in resources folder
             "exec-if"= "pgrep spotify || pgrep ncspot";
         };
-        "hyprland/window" = { "format" = {}; };
+        "hyprland/window" = { 
+          "format" = {}; 
+          "seperate-outputs" = true;
+        };
         "custom/weather" = {
           format = "{}";
           exec = "curl -s wttr.in/\?format=\"%l:+%C,+%t+%w+%p\n\"";

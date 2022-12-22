@@ -188,26 +188,26 @@
       nur.flake = inputs.nur;
     };
 
-    buildMachines = [
-      {
-        hostName = "home.armeen.org";
-        sshKey = "/home/sam/.ssh/id_ecdsa";
-        sshUser = "sam";
-        supportedFeatures = [ "kvm" "big-parallel" "ca-derivations" "nixos-test" ];
-        system = "x86_64-linux,aarch64-linux,i686-linux";
-        maxJobs = 32;
-        speedFactor = 100;
-      }
+    #buildMachines = [
+    #  {
+    #    hostName = "home.armeen.org";
+    #    sshKey = "/home/sam/.ssh/id_ecdsa";
+    #    sshUser = "sam";
+    #    supportedFeatures = [ "kvm" "big-parallel" "ca-derivations" "nixos-test" ];
+    #    system = "x86_64-linux,aarch64-linux,i686-linux";
+    #    maxJobs = 32;
+    #    speedFactor = 100;
+    #  }
 
-      {
-        hostName = "10.0.0.69";
-        sshKey = "/home/sam/.ssh/id_ecdsa";
-        sshUser = "sam";
-        system = "x86_64-linux,aarch64-linux,i686-linux";
-        maxJobs = 1;
-        speedFactor = 5;
-      }
-    ];
+    #  {
+    #    hostName = "10.0.0.69";
+    #    sshKey = "/home/sam/.ssh/id_ecdsa";
+    #    sshUser = "sam";
+    #    system = "x86_64-linux,aarch64-linux,i686-linux";
+    #    maxJobs = 1;
+    #    speedFactor = 5;
+    #  }
+    #];
 
 
 
@@ -216,11 +216,11 @@
       trusted-users = lib.mkForce [ "@wheel" ];
       builders-use-substitutes = true;
       require-sigs = false;
-      substituters = [
-        "https://cache.ngi0.nixos.org"
-        "https://nix-community.cachix.org"
-        "ssh://sam@home.armeen.org?ssh-key=/home/sam/.ssh/id_ecdsa"
-      ];
+      #substituters = [
+      #  "https://cache.ngi0.nixos.org"
+      #  "https://nix-community.cachix.org"
+      #  "ssh://sam@home.armeen.org?ssh-key=/home/sam/.ssh/id_ecdsa"
+      #];
       trusted-public-keys = [
         "cache.ngi0.nixos.org-1:KqH5CBLNSyX184S9BKZJo1LxrxJ9ltnY2uAs5c/f1MA="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
