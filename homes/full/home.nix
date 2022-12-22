@@ -110,7 +110,7 @@ in
       yubikey-manager-qt
       yubikey-personalization
       yubikey-personalization-gui
-      yubioath-desktop
+      yubioath-flutter
     ])
     ++
     (with pkgs.pkgsMusl; [
