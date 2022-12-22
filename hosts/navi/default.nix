@@ -236,7 +236,7 @@
     light.enable = true;
     nix-ld.enable = true;
     hyprland.enable = true;
-    steam.enable = false;
+    steam.enable = true;
 
     neovim = {
       enable = true;

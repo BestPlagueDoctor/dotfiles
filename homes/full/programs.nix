@@ -622,7 +622,7 @@
     settings = {
       mainBar = {
         # setting monitor to x220 for testing
-        output = [ "HDMI-A-2" ];
+        output = [ "LVDS-1" ];
         layer = "top";
         position = "top";
         height = 24;
@@ -660,7 +660,7 @@
           # "icon-size" = 21,
           "spacing" = 10;
         };
-        "clock" = { "format-alt" = "{:%Y-%m-%d}"; };
+        "clock" = { "format-alt" = "{:%Y-%m-%d}"; "on-click" = ""; };
         "cpu"= { 
           "format"= "{usage}% 󰍛"; 
         };
