@@ -9,55 +9,14 @@
     settings = {
       trusted-users = [ "@wheel" ];
       allowed-users = [ "@wheel" ];
-      builders-use-substitutes = true;
+      builders-use-substitutes = false;
       require-sigs = false;
-      substituters = [
-        "https://cache.ngi0.nixos.org"
-        "https://nix-community.cachix.org"
-        "ssh://sam@home.armeen.org?ssh-key=/home/sam/.ssh/id_ecdsa"
-      ];
-      trusted-public-keys = [
-        "cache.ngi0.nixos.org-1:KqH5CBLNSyX184S9BKZJo1LxrxJ9ltnY2uAs5c/f1MA="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      ];
     };
 
     package = pkgs.nixUnstable;
     extraOptions = ''
       experimental-features = nix-command flakes ca-derivations
     '';
-
-    buildMachines = [
-      {
-        hostName = "home.armeen.org";
-        sshKey = "/home/sam/.ssh/id_ecdsa";
-        sshUser = "sam";
-        supportedFeatures = [ "kvm" "big-parallel" "ca-derivations" "nixos-test" ];
-        system = "x86_64-linux,aarch64-linux,i686-linux";
-        maxJobs = 32;
-        speedFactor = 100;
-      }
-
-      {
-        hostName = "67.173.100.107:2222";
-        sshKey = "/home/sam/.ssh/id_ecdsa";
-        sshUser = "sam";
-        supportedFeatures = [ "kvm" "big-parallel" "ca-derivations" "nixos-test" ];
-        system = "x86_64-linux,aarch64-linux,i686-linux";
-        maxJobs = 32;
-        speedFactor = 80;
-      }
-
-      {
-        hostName = "67.173.100.107";
-        sshKey = "/home/sam/.ssh/id_ecdsa";
-        sshUser = "sam";
-        supportedFeatures = [ "kvm" "big-parallel" "ca-derivations" "nixos-test" ];
-        system = "x86_64-linux,aarch64-linux,i686-linux";
-        maxJobs = 32;
-        speedFactor = 5;
-      }
-    ];
   };
 
   boot = {
@@ -96,6 +55,7 @@
     hostName = "navi";
     interfaces.enp0s25.useDHCP = true;
     wireless.iwd.enable = true;
+    networkmanager.enable = false;
     firewall.allowedTCPPorts = [8009 8010];
   };
 
@@ -173,6 +133,35 @@
         }
       ];
     };
+
+   samba = {
+    enable = true;
+    securityType = "user";
+    extraConfig = ''
+      workgroup = WORKGROUP
+      server string = smbnix
+      netbios name = smbnix
+      security = user 
+      #use sendfile = yes
+      min protocol = LANMAN1
+      # note: localhost is the ipv6 localhost ::1
+      hosts allow = 192.168.0. 127.0.0.1 localhost
+      hosts deny = 0.0.0.0/0
+      guest account = nobody
+      map to guest = bad user
+    '';
+    shares = {
+      ece391_share = {
+        path = "/home/sam/files/code/ece391/ece391_share";
+        browseable = "yes";
+        "read only" = "no";
+        "guest ok" = "yes";
+        "create mask" = "0644";
+        "directory mask" = "0755";
+        "force user" = "sam";
+        };
+      };
+    };  
   };
 
   hardware = {
@@ -224,6 +213,7 @@
       pcsctools
       git
       rsync
+      libGL
     ];
 
     variables.EDITOR = "nvim";

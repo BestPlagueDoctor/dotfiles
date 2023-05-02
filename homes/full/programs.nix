@@ -45,7 +45,7 @@
 
   emacs = {
     enable = true;
-    package = pkgs.emacsPgtkNativeComp;
+    package = pkgs.emacsPgtk;
 
     init = {
       enable = true;
@@ -159,6 +159,7 @@
             (setq evil-want-keybinding nil
                   evil-want-Y-yank-to-eol t
                   evil-search-wrap t
+                  evil-respect-visual-line-mode t
                   evil-regexp-search t)
           '';
           config = ''
@@ -178,6 +179,13 @@
           enable = true;
           config = ''
             (load-theme 'gruvbox-dark-medium)
+          '';
+        };
+
+        rainbow-delimiters = {
+          enable = true;
+          config = '' 
+            (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
           '';
         };
 
@@ -621,13 +629,8 @@
     enable = true;
     settings = {
       mainBar = {
-<<<<<<< HEAD
         # setting monitor to x220 for testing
         output = [ "LVDS-1" ];
-=======
-        # setting monitor to desky to force a rebuild :)
-        output = [ "HDMI-A-1" ];
->>>>>>> refs/remotes/origin/master
         layer = "top";
         position = "top";
         height = 24;
@@ -725,7 +728,7 @@
         };
         "custom/weather" = {
           format = "{}";
-          exec = "curl -s wttr.in/\?format=\"%l:+%C,+%t+%w+%p\n\"";
+          exec = "curl -s wttr.in/\?format=\"Urbana:+%C,+%t+%w\"";
           interval = 1800;
         };
       };
