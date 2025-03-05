@@ -55,9 +55,9 @@ args@{ config, pkgs, lib, modulesPath, inputs, root, user, ... }:
     hostName = "lithium";
 
     wireless.iwd.enable = true;
+    useDHCP = true;
 
     interfaces."enp6s0" = {
-      useDHCP = true;
       wakeOnLan.enable = true;
     };
     firewall.allowedTCPPorts = [ 8080 ];
@@ -75,7 +75,7 @@ args@{ config, pkgs, lib, modulesPath, inputs, root, user, ... }:
       enable32Bit = true;
       extraPackages = with pkgs; [
         amdvlk
-        rocmPackages.clr.icd
+        #rocmPackages.clr.icd
       ];
       extraPackages32 = with pkgs; [ driversi686Linux.amdvlk];
     };
@@ -125,7 +125,7 @@ args@{ config, pkgs, lib, modulesPath, inputs, root, user, ... }:
     hostPlatform = "x86_64-linux";
     config = {
       cudaSupport = false;
-      rocmSupport = true;
+      rocmSupport = false;
     };
   };
 

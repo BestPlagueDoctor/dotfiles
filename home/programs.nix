@@ -77,7 +77,7 @@ in {
       settings = {
         main = {
           term = "xterm-256color";
-          font = "Fira Code:size=12";
+          font = "Tamsyn:size=12";
           dpi-aware = "no";
         };
 
