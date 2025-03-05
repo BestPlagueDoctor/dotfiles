@@ -5,12 +5,12 @@
     windowManager.hyprland = {
       enable = !isHeadless;
       settings = {
-        env = "WLR_DRM_DEVICES,/dev/dri/card0";
+        env = "WLR_DRM_DEVICES,/dev/dri/card1";
         monitor = [
-          "DP-2,1024x768@85,0x0,1"
-          "HDMI-A-1,1920x1080@144,1024x0,1"
-          "DP-1,1920x1200,2944x-100,1"
-          ",preferred,auto,1.175"
+          "DP-1,1024x768@60,0x600,1"
+          "HDMI-A-1,2560x1440@144.001007,1024x-200,1.2"
+          "DP-2,1920x1200,3584x-70,1,transform,1"
+          ",preferred,auto,1"
         ];
 
         workspace = "HDMI-A-1,1";

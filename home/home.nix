@@ -47,8 +47,6 @@ in
       fd
       ffmpeg
       file
-      fira-code
-      fira-code-symbols
       gh
       grim
       gtk3
