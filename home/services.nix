@@ -42,7 +42,7 @@
 
     mako = {
       enable = !isHeadless;
-      extraConfig = ''
+      settings = ''
         [mode=do-not-disturb]
         invisible=1
       '';
