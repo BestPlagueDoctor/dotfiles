@@ -2,6 +2,7 @@
 
 {
   boot = {
+    extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
     supportedFilesystems = [ "bcachefs" ];
     initrd.supportedFilesystems = [ "bcachefs" ];
     loader = {
@@ -69,6 +70,8 @@
       useDHCP = true;
       wakeOnLan.enable = true;
     };
+
+    wireless.iwd.enable = true;
 
     firewall = {
       enable = true;
@@ -200,6 +203,8 @@
     xserver = {
       enable = true;
       videoDrivers = [ "nvidia" ];
+      #desktopManager.kodi.enable = true;
+      desktopManager.kodi.package = (pkgs.kodi.withPackages (pkgs: with pkgs; [ invidious youtube ]));
       desktopManager.kodi.enable = true;
       displayManager.lightdm.greeter.enable = false;
     };
