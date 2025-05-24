@@ -2,6 +2,17 @@
 
 {
   boot = {
+    #kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_6_12.override {
+    #  argsOverride = rec {
+    #    src = pkgs.fetchurl {
+    #          url = "mirror://kernel/linux/kernel/v6.x/linux-${version}.tar.xz";
+    #          sha256 = "YhSOfhf1TEpateda1IgmgsVL7oGJSL5hpZYyNPwISfw=";
+    #    };
+    #    version = "6.11.11";
+    #    modDirVersion = "6.11.11";
+    #    };
+    #});
+    kernelPackages = pkgs.linuxPackages_6_12;
     extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
     supportedFilesystems = [ "bcachefs" ];
     initrd.supportedFilesystems = [ "bcachefs" ];
@@ -53,7 +64,7 @@
       powerManagement.finegrained = false;
       open = false;
       nvidiaSettings = true;
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      package = config.boot.kernelPackages.nvidiaPackages.beta;
     };
   };
 
@@ -102,7 +113,7 @@
 
       "${user.login}" = {
         isNormalUser = true;
-        extraGroups = [ "dufs" "wheel" ];
+        extraGroups = [ "minecraft" "dufs" "wheel" ];
       };
 
       dufs = {
@@ -187,8 +198,22 @@
     fail2ban.enable = false;
 
     minecraft-server = {
-      enable = false;
+      enable = true;
       eula = true;
+      openFirewall = true;
+      declarative = true;
+      serverProperties = {
+        server-port = 44455;
+        enable-rcon = true;
+        "rcon.port" = 44456;
+        "rcon.password" = "letmein!";
+        difficulty = 3;
+        gamemode = 0;
+        max-players = 5;
+        motd = "we are so back";
+        allow-cheats = true;
+      };
+      jvmOpts = "-Xmx8G -Xms8G -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1 -XX:AllocatePrefetchStyle=3 -XX:+UseG1GC -XX:MaxGCPauseMillis=130 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=28 -XX:G1HeapRegionSize=16M -XX:G1ReservePercent=20 -XX:G1MixedGCCountTarget=3 -XX:InitiatingHeapOccupancyPercent=10 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=0 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:G1SATBBufferEnqueueingThresholdPercent=30 -XX:G1ConcMarkStepDurationMillis=5 -XX:G1ConcRSHotCardLimit=16 -XX:G1ConcRefinementServiceIntervalMillis=150 -XX:ConcGCThreads=2";
     };
 
     openssh = {
@@ -203,11 +228,13 @@
     xserver = {
       enable = true;
       videoDrivers = [ "nvidia" ];
-      #desktopManager.kodi.enable = true;
-      desktopManager.kodi.package = (pkgs.kodi.withPackages (pkgs: with pkgs; [ invidious youtube ]));
+      #desktopManager.kodi.package = (pkgs.kodi.withPackages (pkgs: with pkgs; [ ]));
       desktopManager.kodi.enable = true;
       displayManager.lightdm.greeter.enable = false;
     };
+    #cage.user = "kodi";
+    #cage.program = "${pkgs.kodi-wayland}/bin/kodi-standalone";
+    #cage.enable = true;
 
     jellyfin = {
       enable = true;
@@ -323,6 +350,33 @@
             '';
         };
       };
+
+      #kodi = let
+      #  package = pkgs.kodi-gbm.withPackages (kodiPkgs: [
+      #      kodiPkgs.inputstream-adaptive
+      #  ]);
+      #in {
+      #  description = "Kodi media center";
+
+      #  wantedBy = ["multi-user.target"];
+      #  after = [
+      #    "network-online.target"
+      #      "sound.target"
+      #      "systemd-user-sessions.service"
+      #  ];
+      #  wants = [
+      #    "network-online.target"
+      #  ];
+
+      #  serviceConfig = {
+      #    Type = "simple";
+      #    User = "kodi";
+      #    ExecStart = "${package}/bin/kodi-standalone";
+      #    Restart = "always";
+      #    TimeoutStopSec = "15s";
+      #    TimeoutStopFailureMode = "kill";
+      #  };
+      #};
     };
   };
 

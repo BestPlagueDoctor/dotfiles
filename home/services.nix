@@ -7,7 +7,7 @@
     playerctld.enable = true;
 
     emacs = {
-      enable = true;
+      enable = false;
       # TODO: Fix upstream.
       defaultEditor = false;
 
@@ -38,14 +38,6 @@
           }
         ];
       };
-    };
-
-    mako = {
-      enable = !isHeadless;
-      settings = ''
-        [mode=do-not-disturb]
-        invisible=1
-      '';
     };
 
     mpd = {
