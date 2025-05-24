@@ -56,7 +56,7 @@ in {
     };
 
     emacs = {
-      enable = true;
+      enable = false;
       package = pkgs.emacsWithPackagesFromUsePackage {
         config = "${root}/conf/emacs/init.el";
         defaultInitFile = true;
