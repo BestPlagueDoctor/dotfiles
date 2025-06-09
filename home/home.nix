@@ -105,8 +105,8 @@ in
       gimp-with-plugins
       adwaita-icon-theme
       easyeffects
-      breeze-icons
-      dolphin
+      kdePackages.breeze-icons
+      kdePackages.dolphin
       slurp
       kotatogram-desktop
       firefox-wayland

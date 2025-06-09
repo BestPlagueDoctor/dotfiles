@@ -20,7 +20,7 @@ args@{ config, pkgs, lib, modulesPath, inputs, root, user, ... }:
     #extraModprobeConfig = "options kvm_intel nested=1 vfio-pci ids=10de:2484, 10de:228b ";
 
     postBootCommands = ''
-      DEVS="0000:07:00.0 0000:07:00.1"
+      DEVS="0000:08:00.0 0000:08:00.1"
 
       for DEV in $DEVS; do
         echo "vfio-pci" > /sys/bus/pci/devices/$DEV/driver_override
@@ -54,10 +54,10 @@ args@{ config, pkgs, lib, modulesPath, inputs, root, user, ... }:
     hostId = "c2c58d17";
     hostName = "lithium";
 
-    wireless.iwd.enable = true;
+    wireless.iwd.enable = false;
     useDHCP = true;
 
-    interfaces."enp6s0" = {
+    interfaces."enp7s0" = {
       wakeOnLan.enable = true;
     };
     firewall.allowedTCPPorts = [ 8080 ];
@@ -202,6 +202,25 @@ args@{ config, pkgs, lib, modulesPath, inputs, root, user, ... }:
     };
 
     xserver.videoDrivers = [ "amdgpu" ];
+
+    minecraft-server = {
+      enable = false;
+      eula = true;
+      openFirewall = true;
+      declarative = true;
+      serverProperties = {
+        server-port = 44455;
+        enable-rcon = true;
+        "rcon.port" = 44456;
+        "rcon.password" = "letmein!";
+        difficulty = 3;
+        gamemode = 0;
+        max-players = 5;
+        motd = "we are so back";
+        allow-cheats = true;
+      };
+      jvmOpts = "-Xmx8G -Xms8G -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1 -XX:AllocatePrefetchStyle=3 -XX:+UseG1GC -XX:MaxGCPauseMillis=130 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=28 -XX:G1HeapRegionSize=16M -XX:G1ReservePercent=20 -XX:G1MixedGCCountTarget=3 -XX:InitiatingHeapOccupancyPercent=10 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=0 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:G1SATBBufferEnqueueingThresholdPercent=30 -XX:G1ConcMarkStepDurationMillis=5 -XX:G1ConcRSHotCardLimit=16 -XX:G1ConcRefinementServiceIntervalMillis=150 -XX:ConcGCThreads=2";
+    };
   };
 
 
@@ -313,6 +332,7 @@ args@{ config, pkgs, lib, modulesPath, inputs, root, user, ... }:
           "i2c"
           "libvirtd"
           "lp"
+          "minecraft"
           "plugdev"
           "scanner"
           "wheel"
