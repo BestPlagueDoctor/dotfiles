@@ -10,19 +10,19 @@
   };
 
   # TODO find and update
-  #fileSystems = {
-  #  "/" = {
-  #    device = "/dev/disk/by-uuid/5143dfbe-22da-4c8d-92b6-1ea237d9008b";
-  #    fsType = "ext4";
-  #  };
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/a0ee1bf5-0636-4472-b8d7-b741a5528c36";
+      fsType = "ext4";
+    };
 
-  #  "/boot" = {
-  #    device = "/dev/disk/by-uuid/5742-D201";
-  #    fsType = "vfat";
-  #  };
-  #};
+    "/boot" = {
+      device = "/dev/disk/by-uuid/FA54-EACA";
+      fsType = "vfat";
+    };
+  };
 
-  nixpkgs.hostPlatform = "x86_64-linux"; };
+  nixpkgs.hostPlatform = "x86_64-linux";
 
   networking = {
     hostName = "navi";
@@ -62,8 +62,13 @@
 
   users.users."${user.login}" = {
     isNormalUser = true;
+    hashedPassword = "$y$j9T$KQUPupwm7OM42J3ahuBef/$gmB07g1pFP2SPgXZTJHpHK9AAnAyJZRlZmT5UqcyaW4";
     shell = pkgs.zsh;
     extraGroups = [ "wheel" "networkmanager" "adbusers" ];
+  };
+
+  home-manager.users."${user.login}" = {
+    imports = [ ../../home ];
   };
 
   environment = {

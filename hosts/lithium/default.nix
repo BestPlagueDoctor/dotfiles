@@ -153,7 +153,7 @@
 
   environment = {
     defaultPackages = lib.mkForce [ ];
-    systemPackages = (with pkgs; [ radeontop ]);
+    systemPackages = (with pkgs; [ radeontop spotify ]);
   };
   
   system.stateVersion = "24.11";
