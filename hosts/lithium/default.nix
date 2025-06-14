@@ -42,6 +42,7 @@
   networking = {
     hostId = "c2c58d17";
     hostName = "lithium";
+    wireless.iwd.enable = lib.mkForce false;
     interfaces."enp7s0".wakeOnLan.enable = true;
     firewall.allowedTCPPorts = [ 8080 ];
   };
@@ -85,6 +86,8 @@
     };
   };
 
+  security.tpm2.enable = lib.mkForce false;
+
   users = {
     users = {
       "${user.login}" = {
@@ -103,34 +106,47 @@
   };
 
   home-manager.users."${user.login}" = {
+    imports = [ ../../home ];
     services.shikane = {
       enable = true;
       settings = {
-        #profile = [
-        #  {
-        #    name = "default";
-        #    output = [
-        #      {
-        #        enable = true;
-        #        search = [ "m=XG270QG" "s=#ASN3IWn/L/jd" "v=ViewSonic Corporation" ];
-        #        mode = "best";
-        #        position = {
-        #          x = 0;
-        #          y = 525;
-        #        };
-        #      }
-        #      {
-        #        enable = true;
-        #        search = [ "m=LG Ultra HD" "s=0x00028C0E" "v=LG Electronics" ];
-        #        mode = "best";
-        #        position = {
-        #          x = 2560;
-        #          y = 0;
-        #        };
-        #      }
-        #    ];
-        #  }
-        #];
+        profile = [
+          {
+            name = "lithium";
+            output = [
+              {
+                enable = true;
+                search = ["m=Compaq MV740" "s=0x43303132" "v=Compaq Computer Company"];
+                mode = "1024x768@84.997Hz";
+                #mode = "best";
+                position = {
+                  x = 0;
+                  y = 650;
+                };
+              }
+              {
+                enable = true;
+                search = ["m=DELL U2415" "s=CFV9N7623DCS" "v=Dell Inc."];
+                mode = "best";
+                transform = "90";
+                position = {
+                  x = 3584;
+                  y = 0;
+                };
+              }
+              {
+                enable = true;
+                search = ["m=G274QPF E2" "s=CC2HJ64802553" "v=Microstep"];
+                mode = "2560x1440@144.001007";
+                #mode = "best";
+                position = {
+                  x = 1024;
+                  y = 0;
+                };
+              }
+            ];
+          }
+        ];
       };
     };
   };
