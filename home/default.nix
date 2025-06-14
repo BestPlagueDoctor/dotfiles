@@ -1,102 +1,110 @@
 { lib
 , pkgs
+, inputs
+, user
+, root
+, config
 , ...
 }:
 
 {
-  services.hypridle.enable = lib.mkForce false;
   home.packages = with pkgs; [ virt-manager ];
-  home.wayland.windowManager.hyprland.settings.env = "WLR_DRM_DEVICES,/dev/dri/card1";
-  home.wayland.windowManager.hyprland.settings.bind = [ 
-    "SUPER_SHIFT,return,exec,systemd-run --user footclient"
-    "SUPER_SHIFT,Q,killactive,"
-    "SUPER_SHIFT,backspace,exit,"
-    "SUPER,backspace,forcerendererreload"
-    "SUPER,space,togglefloating,"
-    "SUPER_SHIFT,space,pin"
-    "SUPER,D,exec,bemenu-run -b"
-    "SUPER,P,exec,systemd-run --user emacsclient -c -n"
-    ''SUPER,grave,exec,grim -g "$(slurp)" - | swappy -f -''
-    "SUPER_SHIFT,P,pseudo,"
-    "SUPER,F,fullscreen,1"
-    "SUPER_SHIFT,F,fullscreen,0"
+  systemd.user.services = {
+    rclone-cobalt = lib.mkForce {};
+    rclone-oxygen = lib.mkForce {};
+  };
+  #services.hypridle.enable = lib.mkForce false;
+  wayland.windowManager.hyprland.settings.env = lib.mkForce "WLR_DRM_DEVICES,/dev/dri/card1";
+  #home.wayland.windowManager.hyprland.settings.bind = [ 
+  #  "SUPER_SHIFT,return,exec,systemd-run --user footclient"
+  #  "SUPER_SHIFT,Q,killactive,"
+  #  "SUPER_SHIFT,backspace,exit,"
+  #  "SUPER,backspace,forcerendererreload"
+  #  "SUPER,space,togglefloating,"
+  #  "SUPER_SHIFT,space,pin"
+  #  "SUPER,D,exec,bemenu-run -b"
+  #  "SUPER,P,exec,systemd-run --user emacsclient -c -n"
+  #  ''SUPER,grave,exec,grim -g "$(slurp)" - | swappy -f -''
+  #  "SUPER_SHIFT,P,pseudo,"
+  #  "SUPER,F,fullscreen,1"
+  #  "SUPER_SHIFT,F,fullscreen,0"
 
-    "SUPER,W,focusmonitor,DP-2"
-    "SUPER,E,focusmonitor,HDMI-A-1"
-    "SUPER,R,focusmonitor,DP-1"
-    "SUPER_SHIFT,W,movewindow,mon:DP-2"
-    "SUPER_SHIFT,E,movewindow,mon:HDMI-A-1"
-    "SUPER_SHIFT,R,movewindow,mon:DP-1"
-    "SUPER_ALT,W,movecurrentworkspacetomonitor,DP-2"
-    "SUPER_ALT,E,movecurrentworkspacetomonitor,HDMI-A-1"
-    "SUPER_ALT,R,movecurrentworkspacetomonitor,DP-1"
+  #  "SUPER,W,focusmonitor,DP-2"
+  #  "SUPER,E,focusmonitor,HDMI-A-1"
+  #  "SUPER,R,focusmonitor,DP-1"
+  #  "SUPER_SHIFT,W,movewindow,mon:DP-2"
+  #  "SUPER_SHIFT,E,movewindow,mon:HDMI-A-1"
+  #  "SUPER_SHIFT,R,movewindow,mon:DP-1"
+  #  "SUPER_ALT,W,movecurrentworkspacetomonitor,DP-2"
+  #  "SUPER_ALT,E,movecurrentworkspacetomonitor,HDMI-A-1"
+  #  "SUPER_ALT,R,movecurrentworkspacetomonitor,DP-1"
 
-    "SUPER_ALT,H,resizeactive,-30 0"
-    "SUPER_ALT,J,resizeactive,0 30"
-    "SUPER_ALT,K,resizeactive,0 -30"
-    "SUPER_ALT,L,resizeactive,30 0"
+  #  "SUPER_ALT,H,resizeactive,-30 0"
+  #  "SUPER_ALT,J,resizeactive,0 30"
+  #  "SUPER_ALT,K,resizeactive,0 -30"
+  #  "SUPER_ALT,L,resizeactive,30 0"
 
-    "SUPER,tab,workspace,previous"
-    "SUPER,minus,togglespecialworkspace"
-    "SUPER,Z,togglesplit"
-    "SUPER,T,togglegroup"
-    "SUPER,X,movecursortocorner,0"
+  #  "SUPER,tab,workspace,previous"
+  #  "SUPER,minus,togglespecialworkspace"
+  #  "SUPER,Z,togglesplit"
+  #  "SUPER,T,togglegroup"
+  #  "SUPER,X,movecursortocorner,0"
 
-    "SUPER,N,changegroupactive,b"
-    "SUPER,M,changegroupactive,f"
+  #  "SUPER,N,changegroupactive,b"
+  #  "SUPER,M,changegroupactive,f"
 
-    "SUPER,H,movefocus,l"
-    "SUPER,J,movefocus,d"
-    "SUPER,K,movefocus,u"
-    "SUPER,L,movefocus,r"
-    "SUPER_SHIFT,H,movewindow,l"
-    "SUPER_SHIFT,J,movewindow,d"
-    "SUPER_SHIFT,K,movewindow,u"
-    "SUPER_SHIFT,L,movewindow,r"
+  #  "SUPER,H,movefocus,l"
+  #  "SUPER,J,movefocus,d"
+  #  "SUPER,K,movefocus,u"
+  #  "SUPER,L,movefocus,r"
+  #  "SUPER_SHIFT,H,movewindow,l"
+  #  "SUPER_SHIFT,J,movewindow,d"
+  #  "SUPER_SHIFT,K,movewindow,u"
+  #  "SUPER_SHIFT,L,movewindow,r"
 
-    "SUPER,1,workspace,1"
-    "SUPER,2,workspace,2"
-    "SUPER,3,workspace,3"
-    "SUPER,4,workspace,4"
-    "SUPER,5,workspace,5"
-    "SUPER,6,workspace,6"
-    "SUPER,7,workspace,7"
-    "SUPER,8,workspace,8"
-    "SUPER,9,workspace,9"
-    "SUPER,0,workspace,10"
+  #  "SUPER,1,workspace,1"
+  #  "SUPER,2,workspace,2"
+  #  "SUPER,3,workspace,3"
+  #  "SUPER,4,workspace,4"
+  #  "SUPER,5,workspace,5"
+  #  "SUPER,6,workspace,6"
+  #  "SUPER,7,workspace,7"
+  #  "SUPER,8,workspace,8"
+  #  "SUPER,9,workspace,9"
+  #  "SUPER,0,workspace,10"
 
-    "SUPER_SHIFT,1,movetoworkspacesilent,1"
-    "SUPER_SHIFT,2,movetoworkspacesilent,2"
-    "SUPER_SHIFT,3,movetoworkspacesilent,3"
-    "SUPER_SHIFT,4,movetoworkspacesilent,4"
-    "SUPER_SHIFT,5,movetoworkspacesilent,5"
-    "SUPER_SHIFT,6,movetoworkspacesilent,6"
-    "SUPER_SHIFT,7,movetoworkspacesilent,7"
-    "SUPER_SHIFT,8,movetoworkspacesilent,8"
-    "SUPER_SHIFT,9,movetoworkspacesilent,9"
-    "SUPER_SHIFT,0,movetoworkspacesilent,10"
-    "SUPER_SHIFT,minus,movetoworkspacesilent,special"
+  #  "SUPER_SHIFT,1,movetoworkspacesilent,1"
+  #  "SUPER_SHIFT,2,movetoworkspacesilent,2"
+  #  "SUPER_SHIFT,3,movetoworkspacesilent,3"
+  #  "SUPER_SHIFT,4,movetoworkspacesilent,4"
+  #  "SUPER_SHIFT,5,movetoworkspacesilent,5"
+  #  "SUPER_SHIFT,6,movetoworkspacesilent,6"
+  #  "SUPER_SHIFT,7,movetoworkspacesilent,7"
+  #  "SUPER_SHIFT,8,movetoworkspacesilent,8"
+  #  "SUPER_SHIFT,9,movetoworkspacesilent,9"
+  #  "SUPER_SHIFT,0,movetoworkspacesilent,10"
+  #  "SUPER_SHIFT,minus,movetoworkspacesilent,special"
 
-    "SUPER,mouse_down,workspace,m+1"
-    "SUPER,mouse_up,workspace,m-1"
+  #  "SUPER,mouse_down,workspace,m+1"
+  #  "SUPER,mouse_up,workspace,m-1"
 
-    "SUPER,A,exec,makoctl dismiss"
-    "SUPER_SHIFT,A,exec,makoctl dismiss -a"
-    "SUPER,S,exec,makoctl set-mode do-not-disturb"
-    "SUPER_SHIFT,S,exec,makoctl set-mode default"
-    "SUPER_SHIFT,X,exec,swaylock -fF -c 000000"
+  #  "SUPER,A,exec,makoctl dismiss"
+  #  "SUPER_SHIFT,A,exec,makoctl dismiss -a"
+  #  "SUPER,S,exec,makoctl set-mode do-not-disturb"
+  #  "SUPER_SHIFT,S,exec,makoctl set-mode default"
+  #  "SUPER_SHIFT,X,exec,swaylock -fF -c 000000"
 
-    ",xf86audiopause,exec,playerctl play-pause"
-    ",xf86audioplay,exec,playerctl play-pause"
-    ",xf86audiostop,exec,playerctl stop"
-    ",xf86audioprev,exec,playerctl previous"
-    ",xf86audionext,exec,playerctl next"
-    ",xf86monbrightnessup,exec,light -A 5"
-    ",xf86monbrightnessdown,exec,light -U 5"
-    ",xf86audioraisevolume,exec,pamixer -i 5"
-    ",xf86audiolowervolume,exec,pamixer -d 5"
-    ",xf86audiomute,exec,pamixer -t"
-    ",xf86audiomicmute,exec,pamixer --default-source -t"
-  ];
+  #  ",xf86audiopause,exec,playerctl play-pause"
+  #  ",xf86audioplay,exec,playerctl play-pause"
+  #  ",xf86audiostop,exec,playerctl stop"
+  #  ",xf86audioprev,exec,playerctl previous"
+  #  ",xf86audionext,exec,playerctl next"
+  #  ",xf86monbrightnessup,exec,light -A 5"
+  #  ",xf86monbrightnessdown,exec,light -U 5"
+  #  ",xf86audioraisevolume,exec,pamixer -i 5"
+  #  ",xf86audiolowervolume,exec,pamixer -d 5"
+  #  ",xf86audiomute,exec,pamixer -t"
+  #  ",xf86audiomicmute,exec,pamixer --default-source -t"
+  #];
 }
 
