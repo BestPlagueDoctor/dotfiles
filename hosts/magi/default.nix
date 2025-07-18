@@ -12,8 +12,8 @@
     #    modDirVersion = "6.11.11";
     #    };
     #});
-    kernelPackages = pkgs.linuxPackages_6_12;
-    extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
+    #kernelPackages = pkgs.linuxPackages_6_12;
+    #extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
     supportedFilesystems = [ "bcachefs" ];
     initrd.supportedFilesystems = [ "bcachefs" ];
     loader = {
@@ -82,12 +82,12 @@
       wakeOnLan.enable = true;
     };
 
-    wireless.iwd.enable = true;
+    wireless.iwd.enable = false;
 
     firewall = {
       enable = true;
-      allowedTCPPorts = [ 22 80 443 111 2049 4000 4001 4002 8080 8096 20048 ];
-      allowedUDPPorts = [ 111 2049 4000 4001 4002 20048];
+      allowedTCPPorts = [ 22 80 443 111 2049 4000 4001 4002 8080 8096 20048 44455 ];
+      allowedUDPPorts = [ 111 2049 4000 4001 4002 20048 44455 ];
     };
   };
 
@@ -198,7 +198,7 @@
     fail2ban.enable = false;
 
     minecraft-server = {
-      enable = true;
+      enable = false;
       eula = true;
       openFirewall = true;
       declarative = true;
@@ -221,17 +221,17 @@
       settings.PasswordAuthentication = false;
     };
 
-    displayManager = {
-      autoLogin.enable = true;
-      autoLogin.user = "kodi";
-    };
-    xserver = {
-      enable = true;
-      videoDrivers = [ "nvidia" ];
-      #desktopManager.kodi.package = (pkgs.kodi.withPackages (pkgs: with pkgs; [ ]));
-      desktopManager.kodi.enable = true;
-      displayManager.lightdm.greeter.enable = false;
-    };
+    #displayManager = {
+    #  autoLogin.enable = true;
+    #  autoLogin.user = "kodi";
+    #};
+    #xserver = {
+    #  enable = true;
+    #  videoDrivers = [ "nvidia" ];
+    #  #desktopManager.kodi.package = (pkgs.kodi.withPackages (pkgs: with pkgs; [ ]));
+    #  desktopManager.kodi.enable = true;
+    #  displayManager.lightdm.greeter.enable = false;
+    #};
     #cage.user = "kodi";
     #cage.program = "${pkgs.kodi-wayland}/bin/kodi-standalone";
     #cage.enable = true;
