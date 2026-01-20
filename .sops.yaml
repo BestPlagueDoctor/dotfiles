@@ -1,10 +1,7 @@
 keys:
-  - &armeen 098A271A852C8A79A0DAEFB34C66EC973CCB0599
-  - &lithium age1mx600wx8pzyvzcykjxv30dnwqp0w67wv50tp7h2pj0nwglkjhytsln36dp
+  - &sam age126rstkpehtenqvaay57xytcmwkq876m2vsnhqc2eqh50smelkqds62s6j9
 creation_rules:
-  - path_regex: secrets/[^/]+\..*$
+  - path_regex: secrets/.*\.yaml$
     key_groups:
-    - pgp:
-      - *armeen
-      age:
-      - *lithium
+    - age:
+      - *sam
