@@ -33,7 +33,7 @@
     user = {
       login = "sam";
       name = "Sam Knight";
-      email = "ksam1337@gmail.com";
+      email = "samuelk@ami.com";
     };
 
     baseModules = [
@@ -73,6 +73,12 @@
         modules = baseModules ++ [
           inputs.armeenm-dotfiles.nixosModules.nixosInteractive
           ./hosts/navi
+        ];
+      };
+      motherbrain = nixpkgs.lib.nixosSystem {
+        modules = baseModules ++ [
+          inputs.armeenm-dotfiles.nixosModules.nixosInteractive
+          ./hosts/motherbrain
         ];
       };
     };
@@ -124,6 +130,16 @@
       nodes = {
         magi = {
           hostname = "magi";
+          profiles.system = {
+            user = "root";
+            sudo = "doas -u";
+            path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.magi;
+          };
+        };
+      };
+      nodes = {
+        motherbrain = {
+          hostname = "motherbrain";
           profiles.system = {
             user = "root";
             sudo = "doas -u";
