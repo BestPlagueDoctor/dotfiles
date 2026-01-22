@@ -12,9 +12,12 @@
     #    modDirVersion = "6.11.11";
     #    };
     #});
-    #kernelPackages = pkgs.linuxPackages_6_12;
+    kernelPackages = pkgs.linuxPackages_6_12;
     #extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
+    kernelModules = ["nvidia"];
     supportedFilesystems = [ "bcachefs" ];
+    #extraModulePackages = [config.boot.kernelPackages.nvidiaPackages.legacy_470];
+    #blacklistedKernelModules = [ "nvidia" "nvidia_uvm" "nvidia_drm" "nvidia_modeset" "nvidiafb" ];
     initrd.supportedFilesystems = [ "bcachefs" ];
     loader = {
       systemd-boot.enable = true;
@@ -64,7 +67,7 @@
       powerManagement.finegrained = false;
       open = false;
       nvidiaSettings = true;
-      package = config.boot.kernelPackages.nvidiaPackages.beta;
+      package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
     };
   };
 
@@ -72,6 +75,8 @@
 
 
   nixpkgs.hostPlatform = "x86_64-linux";
+  nixpkgs.config.alowUnfree = true;
+  nixpkgs.config.nvidia.acceptLicense = true;
 
   networking = {
     hostName = "magi";
@@ -91,14 +96,14 @@
     };
   };
 
-  time.timeZone = "America/New_York";
+  time.timeZone = lib.mkForce "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
   console = {
     keyMap = "us";
     font = "Tamsyn7x13r";
     packages = [ pkgs.tamsyn ];
-    earlySetup = true;
+    #earlySetup = true;
   };
 
   users = {
@@ -112,6 +117,7 @@
       };
 
       "${user.login}" = {
+        hashedPassword = "$y$j9T$Rv6bcZbZ6Xp5LScQygp.Q.$N8wB0xhT2IKj9ozkg8PvGG04cETWLuIQN/2.QEht.tD";
         isNormalUser = true;
         extraGroups = [ "minecraft" "dufs" "wheel" ];
       };
@@ -198,7 +204,7 @@
     fail2ban.enable = false;
 
     minecraft-server = {
-      enable = false;
+      enable = true;
       eula = true;
       openFirewall = true;
       declarative = true;
@@ -209,9 +215,11 @@
         "rcon.password" = "letmein!";
         difficulty = 3;
         gamemode = 0;
-        max-players = 5;
+        max-players = 10;
         motd = "we are so back";
         allow-cheats = true;
+        view-distance = 16;
+        simulation-distance = 16;
       };
       jvmOpts = "-Xmx8G -Xms8G -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1 -XX:AllocatePrefetchStyle=3 -XX:+UseG1GC -XX:MaxGCPauseMillis=130 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=28 -XX:G1HeapRegionSize=16M -XX:G1ReservePercent=20 -XX:G1MixedGCCountTarget=3 -XX:InitiatingHeapOccupancyPercent=10 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=0 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:G1SATBBufferEnqueueingThresholdPercent=30 -XX:G1ConcMarkStepDurationMillis=5 -XX:G1ConcRSHotCardLimit=16 -XX:G1ConcRefinementServiceIntervalMillis=150 -XX:ConcGCThreads=2";
     };
@@ -221,17 +229,17 @@
       settings.PasswordAuthentication = false;
     };
 
-    #displayManager = {
-    #  autoLogin.enable = true;
-    #  autoLogin.user = "kodi";
-    #};
-    #xserver = {
-    #  enable = true;
-    #  videoDrivers = [ "nvidia" ];
-    #  #desktopManager.kodi.package = (pkgs.kodi.withPackages (pkgs: with pkgs; [ ]));
-    #  desktopManager.kodi.enable = true;
-    #  displayManager.lightdm.greeter.enable = false;
-    #};
+    displayManager = {
+      autoLogin.enable = true;
+      autoLogin.user = "kodi";
+    };
+    xserver = {
+      enable = true;
+      videoDrivers = [ "nvidia" ];
+      #desktopManager.kodi.package = (pkgs.kodi.withPackages (pkgs: with pkgs; [ ]));
+      desktopManager.kodi.enable = true;
+      displayManager.lightdm.greeter.enable = false;
+    };
     #cage.user = "kodi";
     #cage.program = "${pkgs.kodi-wayland}/bin/kodi-standalone";
     #cage.enable = true;
@@ -326,8 +334,6 @@
   };
 
   systemd = {
-    watchdog.rebootTime = "15s";
-
     tmpfiles.rules = [
       "d /run/cache 0755 - - -"
         "d /var/etc 0755 - - -"
@@ -396,7 +402,7 @@
 
     allowUserNamespaces = true;
     protectKernelImage = true;
-    unprivilegedUsernsClone = false;
+    #unprivilegedUsernsClone = false;
 
     acme = {
       acceptTerms = true;
