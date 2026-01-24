@@ -427,7 +427,7 @@
 
   age = {
     secrets = {
-      cloudflare-api-token.file = "${root}/secrets/cloudflare-api-token.env.age";
+      cloudflare-api-token.file = "${root}/secrets/cloudflare-api-token.age";
     };
   };
 
