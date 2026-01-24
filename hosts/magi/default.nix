@@ -1,23 +1,14 @@
 { config, pkgs, lib, user, root, inputs, ... }:
 
+let
+  vpnNs = "/run/netns/wg-ns";
+in
 {
   boot = {
-    #kernelPackages = pkgs.linuxPackagesFor (pkgs.linux_6_12.override {
-    #  argsOverride = rec {
-    #    src = pkgs.fetchurl {
-    #          url = "mirror://kernel/linux/kernel/v6.x/linux-${version}.tar.xz";
-    #          sha256 = "YhSOfhf1TEpateda1IgmgsVL7oGJSL5hpZYyNPwISfw=";
-    #    };
-    #    version = "6.11.11";
-    #    modDirVersion = "6.11.11";
-    #    };
-    #});
     #kernelPackages = pkgs.linuxPackages_6_12; #I think this was because of that shitty wifi dongle...
     #extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
     kernelModules = ["nvidia"];
     supportedFilesystems = [ "bcachefs" ];
-    #extraModulePackages = [config.boot.kernelPackages.nvidiaPackages.legacy_470];
-    #blacklistedKernelModules = [ "nvidia" "nvidia_uvm" "nvidia_drm" "nvidia_modeset" "nvidiafb" ];
     initrd.supportedFilesystems = [ "bcachefs" ];
     loader = {
       systemd-boot.enable = true;
@@ -25,8 +16,6 @@
     };
   };
 
-# NFS mounts to expose media to Kodi
-# NOTE: when I transfer this server to a real guy, I'm going to need to do all this again
   fileSystems."/" = { 
     device = "/dev/disk/by-uuid/de0a7a75-0032-4556-a7bf-3ec140644402";
     fsType = "ext4";
@@ -60,7 +49,6 @@
 
   hardware = {
     graphics.enable = true;
-    pulseaudio.enable = true;
     nvidia = {
       modesetting.enable = true;
       powerManagement.enable = false;
@@ -102,7 +90,6 @@
     keyMap = "us";
     font = "Tamsyn7x13r";
     packages = [ pkgs.tamsyn ];
-    #earlySetup = true;
   };
 
   users = {
@@ -198,6 +185,7 @@
     fail2ban.enable = false;
     fstrim.enable = true;
     haveged.enable = true;
+    pulseaudio.enable = true;
     pipewire.enable = lib.mkForce false;
     smartd.enable = true;
     timesyncd.enable = true;
@@ -207,6 +195,16 @@
       enable = true;
       domains = [ "plague.oreo.ooo" ];
       apiTokenFile = config.age.secrets.cloudflare-api-token.path;
+    };
+
+    transmission = {
+      enable = true;
+      package =pkgs.transmission_4;
+      openFirewall = false;
+      settings = { 
+        rpc-bind-address = "0.0.0.0";
+        rpc-whitelist-enabled = false;
+      };
     };
 
     minecraft-server = {
@@ -246,9 +244,6 @@
       desktopManager.kodi.enable = true;
       displayManager.lightdm.greeter.enable = false;
     };
-    #cage.user = "kodi";
-    #cage.program = "${pkgs.kodi-wayland}/bin/kodi-standalone";
-    #cage.enable = true;
 
     jellyfin = {
       enable = true;
@@ -361,34 +356,47 @@
         };
       };
 
-      #kodi = let
-      #  package = pkgs.kodi-gbm.withPackages (kodiPkgs: [
-      #      kodiPkgs.inputstream-adaptive
-      #  ]);
-      #in {
-      #  description = "Kodi media center";
-
-      #  wantedBy = ["multi-user.target"];
-      #  after = [
-      #    "network-online.target"
-      #      "sound.target"
-      #      "systemd-user-sessions.service"
-      #  ];
-      #  wants = [
-      #    "network-online.target"
-      #  ];
-
+      #wg-setup = {
+      #  description = "Setup Wireguard Namespace";
+      #  wantedBy = [ "multi-user.target" ];
+      #  after = [ "agenix.target" "network-online.target" ];
+      #  wants = [ "agenix.target" "network-online.target" ];
       #  serviceConfig = {
-      #    Type = "simple";
-      #    User = "kodi";
-      #    ExecStart = "${package}/bin/kodi-standalone";
-      #    Restart = "always";
-      #    TimeoutStopSec = "15s";
-      #    TimeoutStopFailureMode = "kill";
+      #    Type = "oneshot";
+      #    RemainAfterExit = true;
+      #  };
+
+      #  script = ''
+      #    if ! ${pkgs.iproute2}/bin/ip netns list | grep -qw wg-ns; then
+      #      ${pkgs.iproute2}/bin/ip netns add wg-ns
+      #    fi
+      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iproute2}/bin/ip link set lo up
+      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg-quick up ${config.age.secrets.wg0.path}
+      #    # killswitch
+      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -P OUTPUT DROP
+      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -A OUTPUT -o wg0 -j ACCEPT
+      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT
+      #  '';
+      #  preStop = ''
+      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg-quick down ${config.age.secrets.wg0.path} || true
+      #    if ! ${pkgs.iproute2}/bin/ip netns list | grep -qw wg-ns; then
+      #      ${pkgs.iproute2}/bin/ip netns del wg-ns || true
+      #    fi
+      #  '';
+      #};
+      #transmission = {
+      #  after = [ "wg-setup.service" ];
+      #  requires = [ "wg-setup.service" ];
+      #  serviceConfig = {
+      #    NetworkNamespacePath = vpnNs;
+      #    BindPaths = [ vpnNs ];
+      #    PrivateNetwork = false;
       #  };
       #};
+      # add any systemd service you need VPN tunnel for here
     };
   };
+
 
   home-manager = {
     users."${user.login}" = import "${root}/home";
@@ -428,47 +436,9 @@
   age = {
     secrets = {
       cloudflare-api-token.file = "${root}/secrets/cloudflare-api-token.age";
+      wg0.file = "${root}/secrets/wg0.age";
     };
   };
 
   system.stateVersion = lib.mkForce "24.11";
 }
-
-
-
-#  fileSystems."/export/music" = {
-#    device = "/srv/tank/public/music";
-#    options = [ "bind" ];
-#  };
-#
-#  fileSystems."/export/tv" = {
-#    device = "/srv/tank/public/tv";
-#    options = [ "bind" ];
-#  };
-#
-#  fileSystems."/export/movies" = {
-#    device = "/srv/tank/public/movies";
-#    options = [ "bind" ];
-#  };
-#
-#  fileSystems."/export/games" = {
-#    device = "/srv/tank/public/games";
-#    options = [ "bind" ];
-#  };
-#
-
-
-#    nfs = {
-#      server.enable = true;
-#      server.lockdPort = 4001;
-#      server.mountdPort = 4002;
-#      server.statdPort = 4000;
-#      server.exports = ''
-#      /export 10.0.0.69(rw,all_squash,insecure,anonuid=1000,anongid=100)
-#      /export/music 10.0.0.69(rw,all_squash,insecure,anonuid=1000,anongid=100)
-#      /export/movies 10.0.0.69(rw,all_squash,insecure,anonuid=1000,anongid=100)
-#      /export/tv 10.0.0.69(rw,all_squash,insecure,anonuid=1000,anongid=100)
-#      /export/games 10.0.0.69(rw,all_squash,insecure,anonuid=1000,anongid=100)
-#    '';
-#    };
-#

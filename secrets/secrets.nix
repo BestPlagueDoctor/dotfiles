@@ -7,4 +7,5 @@ let
   systems = [ lithium magi ];
 in {
   "cloudflare-api-token.age".publicKeys = users ++ [ magi ];
+  "wg0.age".publicKeys = users ++ [ magi ];
 }
