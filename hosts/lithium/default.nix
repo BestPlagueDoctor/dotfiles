@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, lib, user, ... }:
+{ config, pkgs, inputs, lib, user, root, ... }:
 
 {
   boot = {
@@ -152,6 +152,10 @@
       cursorColor = "#fc03db";
       cursorSize = 48;
     };
+  };
+
+  age.secrets = {
+    larp.file = "${root}/secrets/larp.age";
   };
 
   environment = {

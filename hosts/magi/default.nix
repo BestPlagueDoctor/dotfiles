@@ -71,7 +71,6 @@
     };
   };
 
-  services.pipewire.enable = lib.mkForce false;
 
 
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -196,12 +195,19 @@
   };
 
   services = {
+    fail2ban.enable = false;
     fstrim.enable = true;
     haveged.enable = true;
+    pipewire.enable = lib.mkForce false;
     smartd.enable = true;
     timesyncd.enable = true;
     udisks2.enable = true;
-    fail2ban.enable = false;
+
+    cloudflare-dyndns = {
+      enable = true;
+      domains = [ "plague.oreo.ooo" ];
+      apiTokenFile = config.age.secrets.cloudflare-api-token.path;
+    };
 
     minecraft-server = {
       enable = true;
@@ -417,6 +423,12 @@
     };
 
     tpm2.enable = lib.mkForce false;
+  };
+
+  age = {
+    secrets = {
+      cloudflare-api-token.file = "${root}/secrets/cloudflare-api-token.env.age";
+    };
   };
 
   system.stateVersion = lib.mkForce "24.11";
