@@ -91,9 +91,7 @@
             path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.lithium;
           };
         };
-      };
 
-      nodes = {
         navi = {
           hostname = "navi";
           profiles.system = {
@@ -101,20 +99,9 @@
             path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.navi;
           };
         };
-      };
 
-      nodes = {
         magi = {
           hostname = "magi";
-          profiles.system = {
-            user = "root";
-            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.magi;
-          };
-        };
-      };
-      nodes = {
-        motherbrain = {
-          hostname = "motherbrain";
           profiles.system = {
             user = "root";
             path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.magi;
