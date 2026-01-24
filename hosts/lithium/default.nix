@@ -52,19 +52,6 @@
 
     bluetooth.enable = true;
     cpu.amd.updateMicrocode = true;
-
-    graphics = {
-      extraPackages = with pkgs; [
-        amdvlk
-      ];
-      extraPackages32 = with pkgs; [ driversi686Linux.amdvlk];
-    };
-
-    #nvidia = {
-    #  package = config.boot.kernelPackages.nvidiaPackages.stable;
-    #  open = true;
-    #  modesetting.enable = true;
-    #};
   };
 
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -79,14 +66,13 @@
 
     libvirtd = {
       enable = true;
-      qemu = {
-        swtpm.enable = true;
-        ovmf.enable = true;
-      };
+      qemu.swtpm.enable = true;
     };
   };
 
   security.tpm2.enable = lib.mkForce false;
+
+  programs.steam.enable = true;
 
   users = {
     users = {
@@ -105,49 +91,66 @@
     };
   };
 
-  home-manager.users."${user.login}" = {
-    imports = [ ../../home ];
-    services.shikane = {
-      enable = true;
-      settings = {
-        profile = [
-          {
-            name = "lithium";
-            output = [
-              {
-                enable = true;
-                search = ["m=Compaq MV740" "s=0x43303132" "v=Compaq Computer Company"];
-                mode = "1024x768@84.997Hz";
-                #mode = "best";
-                position = {
-                  x = 0;
-                  y = 650;
-                };
-              }
-              {
-                enable = true;
-                search = ["m=DELL U2415" "s=CFV9N7623DCS" "v=Dell Inc."];
-                mode = "best";
-                transform = "90";
-                position = {
-                  x = 3584;
-                  y = 0;
-                };
-              }
-              {
-                enable = true;
-                search = ["m=G274QPF E2" "s=CC2HJ64802553" "v=Microstep"];
-                mode = "2560x1440@144.001007";
-                #mode = "best";
-                position = {
-                  x = 1024;
-                  y = 0;
-                };
-              }
-            ];
-          }
-        ];
+  home-manager = {
+    users."${user.login}" = {
+      imports = [ ../../home ];
+      xdg.mime.enable = true;
+      xdg.mimeApps = {
+        enable = true;
+        defaultApplications = {
+          "x-scheme-handler/http" = ["firefox.desktop"];
+          "x-scheme-handler/https" = ["firefox.desktop"];
+          "x-scheme-handler/pdf" = ["firefox.desktop"];
+          "inode/directory" = ["dolphin.desktop"];
+        };
+      }; 
+      services.shikane = {
+        enable = true;
+        settings = {
+          profile = [
+            {
+              name = "lithium";
+              output = [
+                {
+                  enable = true;
+                  search = ["m=Compaq MV740" "s=0x43303132" "v=Compaq Computer Company"];
+                  mode = "1024x768@84.997Hz";
+                  #mode = "best";
+                  position = {
+                    x = 0;
+                    y = 650;
+                  };
+                }
+                {
+                  enable = true;
+                  search = ["m=DELL U2415" "s=CFV9N7623DCS" "v=Dell Inc."];
+                  mode = "best";
+                  transform = "90";
+                  position = {
+                    x = 3584;
+                    y = 0;
+                  };
+                }
+                {
+                  enable = true;
+                  search = ["m=G274QPF E2" "s=CC2HJ64802553" "v=Microstep"];
+                  mode = "2560x1440@144.001007";
+                  #mode = "best";
+                  position = {
+                    x = 1024;
+                    y = 0;
+                  };
+                }
+              ];
+            }
+          ];
+        };
       };
+    };
+    extraSpecialArgs = {
+      enableSocial = true;
+      cursorColor = "#fc03db";
+      cursorSize = 48;
     };
   };
 
