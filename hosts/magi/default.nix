@@ -356,43 +356,43 @@ in
         };
       };
 
-      #wg-setup = {
-      #  description = "Setup Wireguard Namespace";
-      #  wantedBy = [ "multi-user.target" ];
-      #  after = [ "agenix.target" "network-online.target" ];
-      #  wants = [ "agenix.target" "network-online.target" ];
-      #  serviceConfig = {
-      #    Type = "oneshot";
-      #    RemainAfterExit = true;
-      #  };
+      wg-setup = {
+        description = "Setup Wireguard Namespace";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "agenix.target" "network-online.target" ];
+        wants = [ "agenix.target" "network-online.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
 
-      #  script = ''
-      #    if ! ${pkgs.iproute2}/bin/ip netns list | grep -qw wg-ns; then
-      #      ${pkgs.iproute2}/bin/ip netns add wg-ns
-      #    fi
-      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iproute2}/bin/ip link set lo up
-      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg-quick up ${config.age.secrets.wg0.path}
-      #    # killswitch
-      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -P OUTPUT DROP
-      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -A OUTPUT -o wg0 -j ACCEPT
-      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT
-      #  '';
-      #  preStop = ''
-      #    ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg-quick down ${config.age.secrets.wg0.path} || true
-      #    if ! ${pkgs.iproute2}/bin/ip netns list | grep -qw wg-ns; then
-      #      ${pkgs.iproute2}/bin/ip netns del wg-ns || true
-      #    fi
-      #  '';
-      #};
-      #transmission = {
-      #  after = [ "wg-setup.service" ];
-      #  requires = [ "wg-setup.service" ];
-      #  serviceConfig = {
-      #    NetworkNamespacePath = vpnNs;
-      #    BindPaths = [ vpnNs ];
-      #    PrivateNetwork = false;
-      #  };
-      #};
+        script = ''
+          if ! ${pkgs.iproute2}/bin/ip netns list | grep -qw wg-ns; then
+            ${pkgs.iproute2}/bin/ip netns add wg-ns
+          fi
+          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iproute2}/bin/ip link set lo up
+          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg-quick up ${config.age.secrets.wg0.path}
+          # killswitch
+          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -P OUTPUT DROP
+          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -A OUTPUT -o wg0 -j ACCEPT
+          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT
+        '';
+        preStop = ''
+          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg-quick down ${config.age.secrets.wg0.path} || true
+          if ! ${pkgs.iproute2}/bin/ip netns list | grep -qw wg-ns; then
+            ${pkgs.iproute2}/bin/ip netns del wg-ns || true
+          fi
+        '';
+      };
+      transmission = {
+        after = [ "wg-setup.service" ];
+        requires = [ "wg-setup.service" ];
+        serviceConfig = {
+          NetworkNamespacePath = vpnNs;
+          BindPaths = [ vpnNs ];
+          PrivateNetwork = false;
+        };
+      };
       # add any systemd service you need VPN tunnel for here
     };
   };
@@ -436,7 +436,7 @@ in
   age = {
     secrets = {
       cloudflare-api-token.file = "${root}/secrets/cloudflare-api-token.age";
-      wg0.file = "${root}/secrets/wg0.age";
+      wg0.file = "${root}/secrets/wg0.conf.age";
     };
   };
 
