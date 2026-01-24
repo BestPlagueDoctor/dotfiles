@@ -12,7 +12,7 @@
     #    modDirVersion = "6.11.11";
     #    };
     #});
-    kernelPackages = pkgs.linuxPackages_6_12;
+    #kernelPackages = pkgs.linuxPackages_6_12; #I think this was because of that shitty wifi dongle...
     #extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
     kernelModules = ["nvidia"];
     supportedFilesystems = [ "bcachefs" ];
@@ -251,13 +251,11 @@
     nginx = {
       user = "sam";
       enable = true;
-      enableQuicBPF = true;
       enableReload = true;
       recommendedGzipSettings = true;
       recommendedOptimisation = true;
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
-      package = pkgs.nginxQuic;
 
       virtualHosts."plague.oreo.ooo" = {
         forceSSL = true;
@@ -417,6 +415,8 @@
         noPass = false;
       }];
     };
+
+    tpm2.enable = lib.mkForce false;
   };
 
   system.stateVersion = lib.mkForce "24.11";
