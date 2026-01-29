@@ -1,8 +1,4 @@
 { config, pkgs, lib, user, root, inputs, ... }:
-
-let
-  vpnNs = "/run/netns/wg-ns";
-in
 {
   boot = {
     #kernelPackages = pkgs.linuxPackages_6_12; #I think this was because of that shitty wifi dongle...
@@ -66,10 +62,11 @@ in
   nixpkgs.config.nvidia.acceptLicense = true;
 
   networking = {
+    networkmanager.enable = lib.mkForce false;
     hostName = "magi";
 
     nameservers = [ "1.1.1.1" "1.0.0.1" ];
-    interfaces.enp7s0 = {
+    interfaces.enp9s0f0 = {
       useDHCP = true;
       wakeOnLan.enable = true;
     };
@@ -199,11 +196,12 @@ in
 
     transmission = {
       enable = true;
-      package =pkgs.transmission_4;
+      package = pkgs.transmission_4;
       openFirewall = false;
+      openRPCPort = true;
       settings = { 
-        rpc-bind-address = "0.0.0.0";
-        rpc-whitelist-enabled = false;
+        "rpc-bind-address" = "10.100.3.10";
+        "rpc-whitelist" = "192.168.1.71";
       };
     };
 
@@ -355,79 +353,23 @@ in
             '';
         };
       };
-
-      wg-setup = {
-        description = "Setup WireGuard Namespace";
-        wantedBy = [ "multi-user.target" ];
-        after = [ "agenix.target" "network-online.target" ];
-        wants = [ "agenix.target" "network-online.target" ];
-      
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-        };
-      
-        script = ''
-          # Create namespace if missing
-          if ! ${pkgs.iproute2}/bin/ip netns list | grep -qw wg-ns; then
-            ${pkgs.iproute2}/bin/ip netns add wg-ns
-          fi
-      
-          # Bring up loopback
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ip link set lo up
-      
-          # Create WireGuard interface
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg-quick strip ${config.age.secrets.wg0.path} > /dev/null
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg adddev wg0
-      
-          # Set private key from agenix secret
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg set wg0 private-key ${config.age.secrets.wg0.path}
-      
-          # Assign interface IP
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ip addr add 10.21.193.130/32 dev wg0
-      
-          # Bring interface up
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ip link set mtu 1420 up dev wg0
-      
-          # Configure peer
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.wireguard-tools}/bin/wg set wg0 peer XTLss1GVGIfseqrlZfc312epDrRdBJLg4viThbiGo1M= \
-            endpoint 181.215.182.211:1337 \
-            allowed-ips 0.0.0.0/0 \
-            persistent-keepalive 25
-      
-          # Add default route
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ip route add 0.0.0.0/0 dev wg0
-      
-          # Killswitch rules
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -P OUTPUT DROP
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -A OUTPUT -o wg0 -j ACCEPT
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ${pkgs.iptables}/bin/iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT
-        '';
-      
-        preStop = ''
-          # Remove WireGuard interface
-          ${pkgs.iproute2}/bin/ip netns exec wg-ns ip link delete dev wg0 || true
-      
-          # Remove namespace
-          if ${pkgs.iproute2}/bin/ip netns list | grep -qw wg-ns; then
-            ${pkgs.iproute2}/bin/ip netns del wg-ns || true
-          fi
-        '';
-      };
-
-      transmission = {
-        after = [ "wg-setup.service" ];
-        requires = [ "wg-setup.service" ];
-        serviceConfig = {
-          NetworkNamespacePath = vpnNs;
-          BindPaths = [ vpnNs ];
-          PrivateNetwork = false;
-        };
-      };
-      # add any systemd service you need VPN tunnel for here
     };
   };
 
+  # vpn containment
+  vpnNamespaces.igor = {
+    enable = true;
+    wireguardConfigFile = "/home/sam/igor.conf";
+    accessibleFrom = [ "10.100.3.0/24" ];
+    portMappings = [{ from = 9091; to = 9091; }];
+    openVPNPorts = [{ port = 27070; protocol = "both"; }];
+  };
+
+  # bind to containment
+  systemd.services.transmission.vpnConfinement = {
+    enable = true;
+    vpnNamespace = "igor";
+  };
 
   home-manager = {
     users."${user.login}" = import "${root}/home";
