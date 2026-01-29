@@ -3,9 +3,10 @@
 
   inputs = {
     armeenm-dotfiles.url = "github:armeenm/dotfiles";
+    vpn-confinement.url = "github:Maroka-chan/VPN-Confinement";
   };
 
-  outputs = { self, armeenm-dotfiles, ... }: let
+  outputs = { self, armeenm-dotfiles, vpn-confinement, ... }: let
     inherit (armeenm-dotfiles) inputs lib nixosModules;
     inherit (inputs) deploy-rs nixpkgs;
 
@@ -41,6 +42,7 @@
       magi = nixpkgs.lib.nixosSystem {
         modules = baseModules ++ [
           nixosModules.nixosBase
+          vpn-confinement.nixosModules.default
           ./hosts/magi
         ];
       };
