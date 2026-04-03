@@ -60,6 +60,13 @@
     extraGroups = [ "docker" "wheel" "networkmanager" ];
   };
 
+  users.users.gitlab-runner = {
+    isSystemUser = true;
+    group = "gitlab-runner";
+    home = "/var/lib/gitlab-runner";
+  };
+  users.groups.gitlab-runner = {};
+
   home-manager = {
     users."${user.login}" = {
       imports = [ ../../home ];
@@ -87,8 +94,8 @@
                   mode = "1920x1080@75.001999";
                   #mode = "best";
                   position = {
-                    x = 1080;
-                    y = 300;
+                    x = 0;
+                    y = 0;
                   };
                 }
                 {
@@ -97,20 +104,20 @@
                   mode = "1920x1080@60.000000";
                   #mode = "best";
                   position = {
-                    x = 3000;
+                    x = 1920;
                     y = 250;
                   };
                 }
-                {
-                  enable = true;
-                  search = ["m=DELL P2317H" "s=CG1G378S130B" "v=Dell Inc."];
-                  mode = "best";
-                  transform = "90";
-                  position = {
-                    x = 0;
-                    y = 0;
-                  };
-                }
+                #{
+                #  enable = true;
+                #  search = ["m=DELL P2317H" "s=CG1G378S130B" "v=Dell Inc."];
+                #  mode = "best";
+                #  transform = "90";
+                #  position = {
+                #    x = 0;
+                #    y = 0;
+                #  };
+                #}
               ];
             }
           ];
@@ -134,18 +141,30 @@
 
   services = {
     sunshine = {
-      enable = true;
+      enable = false;
       autoStart = true;
       capSysAdmin = true;
       openFirewall = true;
     };
-
     gitlab-runner = {
       enable = true;
       configFile = "/etc/gitlab-runner-config.toml";
     };
   };
 
+  age.secrets.gitlab-runner = {
+    file = ./secrets/gitlab-runner.age;
+    owner = "root";
+    group = "root";
+    mode = "0600";
+  };
+
+  systemd = {
+    services.gitab-runner.serviceConfig.DynamicUser = lib.mkForce false;
+    tmpfiles.rules = [
+      "d /var/lib/gitlab-runner/.gitlab-runner 0755 gitlab-runner gitlab-runner -"
+    ];
+  };
 
 
   environment = {
@@ -154,6 +173,7 @@
       teams-for-linux 
       distrobox 
       bcompare
+      github-copilot-cli
     ];
 
     etc."distrobox/distrobox.conf".text = ''
@@ -161,21 +181,17 @@
       PATH="/usr/bin:/bin:$PATH"
       NAME="devbox"
     '';
-    
+
     etc."gitlab-runner-config.toml".text = ''
       concurrent = 1
       check_interval = 0
 
       [[runners]]
-        name = "test runner"
+        name = "sam's linux desktop"
         url = "https://git.ami.com"
-        token = "***REMOVED***"
+        token_path = "${config.age.secrets.gitlab-runner.path}"
         executor = "docker"
         output_limit = 40000000
-
-        [runners.docker]
-          image = "ubuntu_oks:latest"
-
     '';
   };
 
