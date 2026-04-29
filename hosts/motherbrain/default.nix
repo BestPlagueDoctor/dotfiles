@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, lib, user, ... }:
+{ config, pkgs, root, inputs, lib, user, ... }:
 
 {
   boot = {
@@ -59,13 +59,6 @@
     shell = pkgs.zsh;
     extraGroups = [ "docker" "wheel" "networkmanager" ];
   };
-
-  users.users.gitlab-runner = {
-    isSystemUser = true;
-    group = "gitlab-runner";
-    home = "/var/lib/gitlab-runner";
-  };
-  users.groups.gitlab-runner = {};
 
   home-manager = {
     users."${user.login}" = {
@@ -152,18 +145,43 @@
     };
   };
 
-  age.secrets.gitlab-runner = {
-    file = ./secrets/gitlab-runner.age;
-    owner = "root";
-    group = "root";
-    mode = "0600";
+  age = {
+    identityPaths = [ "/home/sam/.ssh/id_ed25519" ];
+    secrets = {
+      gitlab-runner.file = "${root}/secrets/gitlab-runner.age";
+    };
   };
 
   systemd = {
-    services.gitab-runner.serviceConfig.DynamicUser = lib.mkForce false;
+    services.gitlab-runner.serviceConfig = {
+      DynamicUser = lib.mkForce false;
+      SupplementaryGroups = [ "docker" ];
+    };
     tmpfiles.rules = [
       "d /var/lib/gitlab-runner/.gitlab-runner 0755 gitlab-runner gitlab-runner -"
     ];
+  };
+
+  system.activationScripts.gitlabRunnerConfig = {
+    deps = [ "agenix" ];
+    text = ''
+      token=$(cat ${config.age.secrets.gitlab-runner.path})
+      cat > /etc/gitlab-runner-config.toml <<EOF
+      concurrent = 3
+      check_interval = 0
+
+      [[runners]]
+        name = "sam's linux desktop"
+        url = "https://git.ami.com"
+        token = "$token"
+        executor = "docker"
+        output_limit = 40000000
+
+        [runners.docker]
+          host = "unix:///var/run/docker.sock"
+          
+      EOF
+    '';
   };
 
 
@@ -180,18 +198,6 @@
       container_additional_volumes="/etc/profiles:/etc/profiles:ro /etc/static:/etc/static:ro"
       PATH="/usr/bin:/bin:$PATH"
       NAME="devbox"
-    '';
-
-    etc."gitlab-runner-config.toml".text = ''
-      concurrent = 1
-      check_interval = 0
-
-      [[runners]]
-        name = "sam's linux desktop"
-        url = "https://git.ami.com"
-        token_path = "${config.age.secrets.gitlab-runner.path}"
-        executor = "docker"
-        output_limit = 40000000
     '';
   };
 
