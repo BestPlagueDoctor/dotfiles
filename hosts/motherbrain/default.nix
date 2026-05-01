@@ -101,16 +101,6 @@
                     y = 250;
                   };
                 }
-                #{
-                #  enable = true;
-                #  search = ["m=DELL P2317H" "s=CG1G378S130B" "v=Dell Inc."];
-                #  mode = "best";
-                #  transform = "90";
-                #  position = {
-                #    x = 0;
-                #    y = 0;
-                #  };
-                #}
               ];
             }
           ];
@@ -163,7 +153,6 @@
   };
 
   system.activationScripts.gitlabRunnerConfig = {
-    deps = [ "agenix" ];
     text = ''
       token=$(cat ${config.age.secrets.gitlab-runner.path})
       cat > /etc/gitlab-runner-config.toml <<EOF
