@@ -75,8 +75,8 @@
 
     firewall = {
       enable = true;
-      allowedTCPPorts = [ 22 80 443 111 2049 4000 4001 4002 8080 8096 20048 44455 ];
-      allowedUDPPorts = [ 111 2049 4000 4001 4002 20048 44455 ];
+      allowedTCPPorts = [ 80 443 3000 8080 8096 8920 44455 ];
+      allowedUDPPorts = [ 44455 ];
     };
   };
 
@@ -194,14 +194,23 @@
       apiTokenFile = config.age.secrets.cloudflare-api-token.path;
     };
 
+    immich = {
+      enable = true;
+      port = 3000;
+      mediaLocation = "/srv/tank/photos";
+      host = "0.0.0.0";
+      openFirewall = true;
+    };
+
+
     transmission = {
       enable = true;
       package = pkgs.transmission_4;
       openFirewall = false;
       openRPCPort = true;
       settings = { 
-        "rpc-bind-address" = "10.100.3.10";
-        "rpc-whitelist" = "192.168.1.71";
+        "rpc-bind-address" = "192.168.15.1";
+        "rpc-whitelist" = "*";
       };
     };
 
@@ -275,6 +284,40 @@
         '';
       };
 
+      virtualHosts."foto.oreo.ooo" = {
+        enableACME = true;
+        forceSSL = true;
+        locations = let
+          proxyPass = "http://127.0.0.1:3000";
+        commonProxy = ''
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header X-Forwarded-Protocol $scheme;
+          proxy_set_header X-Forwarded-Host $http_host;
+        '';
+        in {
+          "/" = {
+            inherit proxyPass;
+            extraConfig = commonProxy + ''
+# Disable buffering when the nginx proxy gets very resource heavy upon streaming.
+              proxy_buffering off;
+            '';
+          };
+          "/socket" = {
+            inherit proxyPass;
+            proxyWebsockets = true;
+            extraConfig = commonProxy;
+          };
+        };
+        extraConfig = ''
+          client_max_body_size 50000M;
+          proxy_read_timeout   600s;
+          proxy_send_timeout   600s;
+          send_timeout         600s;
+        '';
+      };
+
       virtualHosts."ooo.oreo.ooo" = {
         enableACME = true;
         forceSSL = true;
@@ -282,10 +325,10 @@
           proxyPass = "http://127.0.0.1:8096";
         commonProxy = ''
           proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Protocol $scheme;
-        proxy_set_header X-Forwarded-Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header X-Forwarded-Protocol $scheme;
+          proxy_set_header X-Forwarded-Host $http_host;
         '';
         in {
           "/" = {
@@ -360,7 +403,7 @@
   vpnNamespaces.igor = {
     enable = true;
     wireguardConfigFile = "/home/sam/igor.conf";
-    accessibleFrom = [ "10.100.3.0/24" ];
+    accessibleFrom = [ "192.168.1.0/24" ];
     portMappings = [{ from = 9091; to = 9091; }];
     openVPNPorts = [{ port = 27070; protocol = "both"; }];
   };
