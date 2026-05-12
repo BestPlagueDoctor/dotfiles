@@ -7,6 +7,10 @@
 , ...
 }:
 
+let
+  home = config.home.homeDirectory;
+in
+
 {
   home.packages = with pkgs; [ spotify ];
   programs.git.delta.options.navigate = true;

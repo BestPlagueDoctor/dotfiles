@@ -7,24 +7,25 @@
       verbose = false;
       # in case i lose it
       #kernelModules = [ "nvme" "amdgpu" "vfio_pci" "vfio" "vfio_iommu_type1" "vfio_virqfd"];
-      kernelModules = [ "amdgpu" "nvme" ];
+      #kernelModules = [ "amdgpu" "nvme" ];
     };
 
     consoleLogLevel = 0;
 
-    kernelModules = [ "kvm-amd" "kvm-intel" "amdgpu" "vfio_pci" "vfio" "vfio_iommu_type1" "vfio_virqfd"];
-    blacklistedKernelModules = [ "nvidia" "nouveau" ];
-    kernelParams = [ "amd_iommu=on" "fbcon=map:1" "video=DP-1:1024x768@60" "video=DP-2:1920x1200@60" "video=HDMI-A-1:1920x1080@144" ];
+    #kernelModules = [ "kvm-amd" "kvm-intel" "amdgpu" "vfio_pci" "vfio" "vfio_iommu_type1" "vfio_virqfd"];
+    kernelModules = [ "nvme" "nvidia" ];
+    #blacklistedKernelModules = [ "nvidia" "nouveau" ];
+    #kernelParams = [ "amd_iommu=on" "fbcon=map:1" "video=DP-1:1024x768@60" "video=DP-2:1920x1200@60" "video=HDMI-A-1:1920x1080@144" ];
     #extraModprobeConfig = "options kvm_intel nested=1 vfio-pci ids=10de:2484, 10de:228b ";
 
-    postBootCommands = ''
-      DEVS="0000:08:00.0 0000:08:00.1"
-
-      for DEV in $DEVS; do
-        echo "vfio-pci" > /sys/bus/pci/devices/$DEV/driver_override
-      done
-      modprobe -i vfio-pci
-    '';
+    #postBootCommands = ''
+    #  DEVS="0000:08:00.0 0000:08:00.1"
+    #
+    #  for DEV in $DEVS; do
+    #    echo "vfio-pci" > /sys/bus/pci/devices/$DEV/driver_override
+    #  done
+    #  modprobe -i vfio-pci
+    #'';
   };
 
   fileSystems = {
@@ -48,26 +49,22 @@
   };
 
   hardware = {
-    enableAllFirmware = true;
-
     bluetooth.enable = true;
     cpu.amd.updateMicrocode = true;
+    enableAllFirmware = true;
+    nvidia.open = false;
+
+    nvidia = {
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      modesetting.enable = true;
+    };
   };
 
   nixpkgs.hostPlatform = "x86_64-linux";
 
   services = {
     iperf3.enable = true;
-    xserver.videoDrivers = [ "amdgpu" ];
-  };
-
-  virtualisation = {
-    spiceUSBRedirection.enable = false;
-
-    libvirtd = {
-      enable = true;
-      qemu.swtpm.enable = true;
-    };
+    xserver.videoDrivers = [ "nvidia" ];
   };
 
   security.tpm2.enable = lib.mkForce false;
@@ -85,7 +82,6 @@
           "lp"
           "plugdev"
           "scanner"
-          "qemu-libvirtd"
         ];
       };
     };
@@ -103,7 +99,7 @@
           "x-scheme-handler/pdf" = ["firefox.desktop"];
           "inode/directory" = ["dolphin.desktop"];
         };
-      }; 
+      };
       services.shikane = {
         enable = true;
         settings = {
@@ -113,8 +109,8 @@
               output = [
                 {
                   enable = true;
-                  search = ["m=Compaq MV740" "s=0x43303132" "v=Compaq Computer Company"];
-                  mode = "1024x768@84.997Hz";
+                  search = ["m=Compaq MV740" "n/DP-3" "s=0x43303132" "v=Compaq Computer Company"];
+                  mode = "1024x768@60";
                   #mode = "best";
                   position = {
                     x = 0;
@@ -149,19 +145,15 @@
     };
     extraSpecialArgs = {
       enableSocial = true;
-      cursorColor = "#fc03db";
+      cursorColor = "fc03db";
       cursorSize = 48;
     };
   };
 
-  age.secrets = {
-    larp.file = "${root}/secrets/larp.age";
-  };
-
   environment = {
     defaultPackages = lib.mkForce [ ];
-    systemPackages = (with pkgs; [ radeontop spotify ]);
+    systemPackages = (with pkgs; [ spotify ]);
   };
-  
+
   system.stateVersion = "24.11";
 }
