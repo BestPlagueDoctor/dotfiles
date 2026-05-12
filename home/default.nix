@@ -18,5 +18,6 @@ in
     rclone-cobalt = lib.mkForce {};
     rclone-oxygen = lib.mkForce {};
   };
+  wayland.windowManager.hyprland.settings.dwindle.pseudotile = lib.mkForce false;
 }
 

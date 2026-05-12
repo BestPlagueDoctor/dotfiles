@@ -88,8 +88,10 @@
   };
 
   home-manager = {
+    backupFileExtension = "bak";
     users."${user.login}" = {
       imports = [ ../../home ];
+      #xdg.configFile."Kvantum/Base16Kvantum/Base16Kvantum.svg".force = true;
       xdg.mime.enable = true;
       xdg.mimeApps = {
         enable = true;
@@ -109,7 +111,7 @@
               output = [
                 {
                   enable = true;
-                  search = ["m=Compaq MV740" "n/DP-3" "s=0x43303132" "v=Compaq Computer Company"];
+                  search = [ "n/DP-3" ];
                   mode = "1024x768@60";
                   #mode = "best";
                   position = {
