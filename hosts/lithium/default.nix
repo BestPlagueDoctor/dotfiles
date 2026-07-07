@@ -54,6 +54,9 @@
     enableAllFirmware = true;
     nvidia.open = false;
 
+    # sunshine input
+    uinput.enable = true;
+
     nvidia = {
       package = config.boot.kernelPackages.nvidiaPackages.stable;
       modesetting.enable = true;
@@ -65,6 +68,23 @@
   services = {
     iperf3.enable = true;
     xserver.videoDrivers = [ "nvidia" ];
+
+    sunshine = {
+      enable = true;
+      autoStart = true;
+      openFirewall = true;
+      # capSysAdmin = true;  # only enable if wlr-screencopy capture fails under Hyprland
+    };
+
+    greetd = {
+      enable = true;
+      settings = {
+        default_session = {
+          command = "${pkgs.uwsm}/bin/uwsm start default";
+          user = "${user.login}";
+        };
+      };
+    };
   };
 
   security.tpm2.enable = lib.mkForce false;
@@ -82,6 +102,7 @@
           "lp"
           "plugdev"
           "scanner"
+          "uinput"
         ];
       };
     };
