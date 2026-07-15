@@ -4,6 +4,7 @@
     #kernelPackages = pkgs.linuxPackages_6_12; #I think this was because of that shitty wifi dongle...
     #extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
     kernelModules = ["nvidia"];
+    kernel.sysctl."net.ipv4.ip_forward" = lib.mkForce 1;
     supportedFilesystems = [ "bcachefs" ];
     initrd.supportedFilesystems = [ "bcachefs" ];
     loader = {
@@ -76,7 +77,28 @@
     firewall = {
       enable = true;
       allowedTCPPorts = [ 80 443 3000 8080 8096 8920 44455 ];
-      allowedUDPPorts = [ 44455 ];
+      allowedUDPPorts = [ 44455 51820 ];
+    };
+
+    #incoming wg
+    wireguard.interfaces = {
+      wg-remote = {
+        ips = [ "10.100.0.1/24" ];
+        listenPort = 51820;
+        privateKeyFile = config.age.secrets.wg-remote-incoming.path;
+        postSetup = ''
+          ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o enp9s0f0 -j MASQUERADE
+          '';
+        postShutdown = ''
+          ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o enp9s0f0 -j MASQUERADE
+          '';
+        peers = [
+        {
+          publicKey = "33yQdOCzm7Cq5jE9DwF1grXIj5NTiqhj5rloeXiV4hU=";
+          allowedIPs = [ "10.100.0.2/32" ];
+        }
+        ];
+      };
     };
   };
 
@@ -453,6 +475,7 @@
     secrets = {
       cloudflare-api-token.file = "${root}/secrets/cloudflare-api-token.age";
       wg0-prikey.file = "${root}/secrets/wg0.age";
+      wg-remote-incoming.file = "${root}/secrets/wg-remote-incoming.age";
     };
   };
 

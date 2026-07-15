@@ -5,7 +5,8 @@ let
   motherbrain = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICgGwnnwmT1NmmFXKVoq1N7Z4fqI6NRAhwNldjDz3wFZ";
   systems = [ lithium magi navi motherbrain ];
 in {
-  "cloudflare-api-token.age".publicKeys = systems;
+  "cloudflare-api-token.age".publicKeys = [ magi ];
   "wg0.age".publicKeys = [ magi ];
+  "wg-remote-incoming.age".publicKeys = [ magi ];
   "gitlab-runner.age".publicKeys = [ motherbrain ];
 }
