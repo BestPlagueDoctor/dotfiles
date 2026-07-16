@@ -6,6 +6,7 @@ let
   systems = [ lithium magi navi motherbrain ];
 in {
   "cloudflare-api-token.age".publicKeys = [ magi ];
+  "dufs.age".publicKeys = [ magi ];
   "wg0.age".publicKeys = [ magi ];
   "wg-remote-incoming.age".publicKeys = [ magi ];
   "gitlab-runner.age".publicKeys = [ motherbrain ];
