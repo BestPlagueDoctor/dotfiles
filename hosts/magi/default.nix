@@ -92,10 +92,10 @@ in
       allowedUDPPorts = [ 44455 51820 ];
     };
     wireguard.interfaces = {
-      wg-remote = {
+      magi-remote = {
         ips = [ "10.100.0.1/24" ];
         listenPort = 51820;
-        privateKeyFile = config.age.secrets.wg-remote-incoming.path;
+        privateKeyFile = config.age.secrets.magi-remote-incoming.path;
         postSetup = ''
           ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o enp9s0f0 -j MASQUERADE
         '';
@@ -488,7 +488,7 @@ EOF
   # vpn containment
   vpnNamespaces.igor = {
     enable = true;
-    wireguardConfigFile = config.age.secrets."wg0.conf".path;
+    wireguardConfigFile = config.age.secrets."igor.conf".path;
     accessibleFrom = [ "192.168.1.0/24" ];
     portMappings = [{ from = 9091; to = 9091; }];
     openVPNPorts = [{ port = 27070; protocol = "both"; }];
@@ -535,8 +535,8 @@ EOF
     identityPaths = [ "/home/sam/.ssh/id_ed25519" ];
     secrets = {
       cloudflare-api-token.file = "${root}/secrets/cloudflare-api-token.age";
-      wg-remote-incoming.file = "${root}/secrets/wg-remote-incoming.age";
-      "wg0.conf".file = "${root}/secrets/wg0.age";
+      magi-remote-incoming.file = "${root}/secrets/magi-remote-incoming.age";
+      "igor.conf".file = "${root}/secrets/igor.age";
       dufs = {
         file = "${root}/secrets/dufs.age";
         owner = "dufs";
