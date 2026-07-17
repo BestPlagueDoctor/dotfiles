@@ -28,6 +28,19 @@
     hostName = "navi";
     interfaces.enp0s25.useDHCP = true;
     firewall.allowedTCPPorts = [8080];
+
+    wireguard.interfaces.magi-remote = {
+      ips = [ "10.100.0.2/24" ];
+      privateKeyFile = config.age.secrets.navi-wg-privkey.path;
+      peers = [
+      {
+        publicKey = "ZqKEzgs6D+Trgb8MViZHJ8fYi1LGXyuv7plZs2RP4y8=";
+        endpoint = "plague.oreo.ooo:51820";
+        allowedIPs = [ "192.168.1.128/32" ];  # e.g. "192.168.1.50/32" — scopes tunnel to lithium only
+          persistentKeepalive = 25;  # keeps NAT mapping alive since navi is usually behind carrier/wifi NAT
+      }
+      ];
+    };
   };
 
   security.tpm2.enable = lib.mkForce false;
@@ -73,6 +86,13 @@
 
   environment = {
     defaultPackages = lib.mkForce [ ];
+  };
+
+  age = {
+    identityPaths = [ "/home/sam/.ssh/id_ed25519" ];
+    secrets = {
+      navi-wg-privkey.file = "${root}/secrets/navi-wg-privkey.age";
+    };
   };
 
   zramSwap.enable = true;

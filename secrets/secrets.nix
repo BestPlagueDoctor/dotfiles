@@ -9,5 +9,6 @@ in {
   "dufs.age".publicKeys = [ magi ];
   "igor.age".publicKeys = [ magi ];
   "magi-remote-incoming.age".publicKeys = [ magi ];
+  "navi-wg-privkey.age".publicKeys = [ navi ];
   "gitlab-runner.age".publicKeys = [ motherbrain ];
 }
