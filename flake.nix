@@ -20,8 +20,8 @@
     root = ./.;
     user = {
       login = "sam";
-      name = "Sam Knight";
-      email = "samuelk@ami.com";
+      name = "sam knight";
+      email = "ksam1337@gmail.com";
     };
 
     baseModules = [
