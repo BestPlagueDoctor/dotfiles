@@ -63,6 +63,9 @@ in
   # make sure it's using the right driver
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware = {
+    # controller stuff
+    xone.enable = true;
+    steam-hardware.enable = true;
     graphics.enable = true;
     #graphics.extraPackages = with pkgs; [   intel-media-driver libva-vdpau-driver nvidia-vaapi-driver ];
     graphics.extraPackages = with pkgs; [ intel-media-driver ];
