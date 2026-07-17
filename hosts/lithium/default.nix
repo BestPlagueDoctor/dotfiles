@@ -134,6 +134,7 @@
                   enable = true;
                   search = [ "n/DP-3" ];
                   mode = "1024x768@60";
+                  scale = 1.0;
                   #mode = "best";
                   position = {
                     x = 0;
@@ -159,6 +160,28 @@
                     x = 1024;
                     y = 0;
                   };
+                }
+              ];
+            }
+            {
+              name = "sunshine";
+              output = [
+                {
+                  enable = true;
+                  search = [ "n=DP-1" ];
+                  mode = "1920x1080@144.000000";
+                  position = {
+                    x = 0;
+                    y = 0;
+                  };
+                }
+                {
+                  enable = false;
+                  search = [ "n=DP-2" ];
+                }
+                {
+                  enable = false;
+                  search = [ "n=DP-3" ];
                 }
               ];
             }
