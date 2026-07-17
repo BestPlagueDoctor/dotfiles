@@ -3,14 +3,12 @@
 let
   # Wrapper script that injects NVIDIA/Wayland env vars before starting sway.
   # greetd starts this directly as the kodi user, so it owns the full session.
+  #export GBM_BACKEND=nvidia-drm
   swayKodi = pkgs.writeShellScript "sway-kodi" ''
-    export GBM_BACKEND=nvidia-drm
-    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export LIBVA_DRIVER_NAME=iHD
+    export MOZ_ENABLE_WAYLAND=1
     export WLR_NO_HARDWARE_CURSORS=1
-    export WLR_BACKENDS=drm,libinput
-    export LIBVA_DRIVER_NAME=nvidia
-    export WLR_DRM_NO_ATOMIC=1
-    export NVD_BACKEND=direct
+    export WLR_DRM_DEVICES=/dev/dri/card1
     exec ${pkgs.sway}/bin/sway "$@"
   '';
 in
@@ -18,7 +16,10 @@ in
   boot = {
     #kernelPackages = pkgs.linuxPackages_6_12;
     #extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
-    kernelModules = [ "nvidia" ];
+    #kernelModules = [ "i915" "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
+    kernelModules = [ "i915" ];
+    kernelParams = [ "nvidia-drm.modeset=1" ];
+    blacklistedKernelModules = [ "nouveau" ];
     kernel.sysctl."net.ipv4.ip_forward" = lib.mkForce 1;
     supportedFilesystems = [ "bcachefs" ];
     initrd.supportedFilesystems = [ "bcachefs" ];
@@ -59,23 +60,26 @@ in
     };
   };
 
+  # make sure it's using the right driver
+  services.xserver.videoDrivers = [ "nvidia" ];
   hardware = {
     graphics.enable = true;
-    graphics.extraPackages = with pkgs; [ nvidia-vaapi-driver ];
+    #graphics.extraPackages = with pkgs; [   intel-media-driver libva-vdpau-driver nvidia-vaapi-driver ];
+    graphics.extraPackages = with pkgs; [ intel-media-driver ];
     nvidia = {
       modesetting.enable = true;
       powerManagement.enable = false;
       powerManagement.finegrained = false;
       open = false;
       nvidiaSettings = true;
-      #package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
-      package = config.boot.kernelPackages.nvidiaPackages.production;
+      package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
     };
   };
 
   nixpkgs.hostPlatform = "x86_64-linux";
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.nvidia.acceptLicense = true;
+  nixpkgs.config.cudaSupport = true;
 
   networking = {
     networkmanager.enable = lib.mkForce false;
@@ -142,6 +146,7 @@ in
       # edge cases where direct DRM access is needed.
       kodi.extraGroups = [ "pulse-access" "audio" "video" "input" "render" "seat" ];
       immich.extraGroups = [ "video" "render" ];
+      jellyfin.extraGroups = [ "video" "render" ];
     };
   };
 
@@ -228,7 +233,11 @@ in
     mosh.enable = true;
     mtr.enable = true;
     zsh.enable = true;
-    sway.enable = true;
+
+    sway = {
+      enable = true;
+      wrapperFeatures.gtk = true; # Required for GTK apps to work properly
+    };
 
     neovim = {
       enable = true;
@@ -297,6 +306,14 @@ in
       mediaLocation = "/srv/tank/photos";
       host = "0.0.0.0";
       openFirewall = true;
+      accelerationDevices = [ "cuda0" ]; # Use "renderD128" if you are using Intel/AMD
+      machine-learning = {
+        enable = true;
+        environment = {
+          IMMICH_MACHINE_LEARNING_PROVIDER = "cuda"; # Use "openvino" for Intel
+          LD_LIBRARY_PATH = "${pkgs.python312Packages.onnxruntime}/lib/python3.12/site-packages/onnxruntime/capi";
+        };
+      };
     };
 
     transmission = {
@@ -338,6 +355,11 @@ in
 
     jellyfin = {
       enable = true;
+      hardwareAcceleration = {
+        enable = true;
+        type = "nvenc";
+        device = "/dev/dri/by-path/pci-0000:01:00.0-render";
+      };
     };
 
     nginx = {
