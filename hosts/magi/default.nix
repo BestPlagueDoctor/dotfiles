@@ -65,7 +65,10 @@ in
   hardware = {
     # controller stuff
     xone.enable = true;
+    xpadneo.enable = true;
+    xpad-noone.enable = true;
     steam-hardware.enable = true;
+    uinput.enable = true;
     graphics.enable = true;
     #graphics.extraPackages = with pkgs; [   intel-media-driver libva-vdpau-driver nvidia-vaapi-driver ];
     graphics.extraPackages = with pkgs; [ intel-media-driver ];
@@ -88,9 +91,10 @@ in
     networkmanager.enable = lib.mkForce false;
     hostName = "magi";
     nameservers = [ "1.1.1.1" "1.0.0.1" ];
-    interfaces.enp9s0f0 = {
+    interfaces.enp1s0f1 = {
       useDHCP = true;
       wakeOnLan.enable = true;
+      ipv4.addresses = [{address = "192.168.1.70"; prefixLength = 24;}];
     };
     wireless.iwd.enable = false;
     firewall = {
@@ -138,7 +142,7 @@ in
       "${user.login}" = {
         hashedPassword = "$y$j9T$Rv6bcZbZ6Xp5LScQygp.Q.$N8wB0xhT2IKj9ozkg8PvGG04cETWLuIQN/2.QEht.tD";
         isNormalUser = true;
-        extraGroups = [ "pulse-access" "audio" "video" "minecraft" "dufs" "wheel" ];
+        extraGroups = [ "pulse-access" "audio" "video" "minecraft" "dufs" "wheel" "input" ];
       };
       dufs = {
         isSystemUser = true;
@@ -279,6 +283,11 @@ in
     smartd.enable = true;
     timesyncd.enable = true;
     udisks2.enable = true;
+
+    #udev.packages = with pkgs; [ game-devices-udev-rules ];
+    udev.extraRules = ''
+      KERNEL=="hidraw\*", ATTRS{idProduct}=="6012", ATTRS{idVendor}=="2dc8", MODE="0660", GROUP="input"
+    '';
 
     # greetd replaces cage. initial_session autologs in as kodi and starts sway
     # via the swayKodi wrapper (which sets all NVIDIA env vars). If sway exits,
