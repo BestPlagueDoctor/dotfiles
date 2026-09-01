@@ -1,14 +1,17 @@
 { config, pkgs, lib, user, root, inputs, ... }:
 
 let
-  # Wrapper script that injects NVIDIA/Wayland env vars before starting sway.
-  # greetd starts this directly as the kodi user, so it owns the full session.
-  #export GBM_BACKEND=nvidia-drm
   swayKodi = pkgs.writeShellScript "sway-kodi" ''
+    export XDG_SESSION_TYPE=wayland
+    export XDG_SESSION_DESKTOP=sway
+    export XDG_CURRENT_DESKTOP=sway
     export LIBVA_DRIVER_NAME=iHD
     export MOZ_ENABLE_WAYLAND=1
-    export WLR_NO_HARDWARE_CURSORS=1
-    export WLR_DRM_DEVICES=/dev/dri/card1
+    
+    # Explicitly clear out old Nvidia flags so Sway uses standard KMS
+    unset WLR_NO_HARDWARE_CURSORS
+    unset GBM_BACKEND
+    
     exec ${pkgs.sway}/bin/sway "$@"
   '';
 in
@@ -18,7 +21,6 @@ in
     #extraModulePackages = [ config.boot.kernelPackages.rtl88x2bu ];
     #kernelModules = [ "i915" "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
     kernelModules = [ "i915" ];
-    kernelParams = [ "nvidia-drm.modeset=1" ];
     blacklistedKernelModules = [ "nouveau" ];
     kernel.sysctl."net.ipv4.ip_forward" = lib.mkForce 1;
     supportedFilesystems = [ "bcachefs" ];
@@ -61,7 +63,6 @@ in
   };
 
   # make sure it's using the right driver
-  services.xserver.videoDrivers = [ "nvidia" ];
   hardware = {
     # controller stuff
     xone.enable = true;
@@ -70,22 +71,12 @@ in
     steam-hardware.enable = true;
     uinput.enable = true;
     graphics.enable = true;
-    #graphics.extraPackages = with pkgs; [   intel-media-driver libva-vdpau-driver nvidia-vaapi-driver ];
     graphics.extraPackages = with pkgs; [ intel-media-driver ];
-    nvidia = {
-      modesetting.enable = true;
-      powerManagement.enable = false;
-      powerManagement.finegrained = false;
-      open = false;
-      nvidiaSettings = true;
-      package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
-    };
   };
 
   nixpkgs.hostPlatform = "x86_64-linux";
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.nvidia.acceptLicense = true;
-  nixpkgs.config.cudaSupport = true;
+  nixpkgs.config.cudaSupport = false;
 
   networking = {
     networkmanager.enable = lib.mkForce false;
@@ -191,13 +182,6 @@ in
       sudo = "doas";
     };
 
-    # Only keep what's relevant for interactive SSH sessions.
-    # The Wayland/NVIDIA vars now live in swayKodi and reach the compositor
-    # directly via greetd — no more env pollution for headless services.
-    sessionVariables = {
-      NIXOS_OZONE_WL = "1";
-    };
-
     # Launcher script at a stable /etc path. favourites.xml references this
     # path directly, so it never needs updating when moonlight's store hash
     # changes. The binary path inside the script DOES update on rebuild.
@@ -285,9 +269,9 @@ in
     udisks2.enable = true;
 
     #udev.packages = with pkgs; [ game-devices-udev-rules ];
-    udev.extraRules = ''
-      KERNEL=="hidraw\*", ATTRS{idProduct}=="6012", ATTRS{idVendor}=="2dc8", MODE="0660", GROUP="input"
-    '';
+    #udev.extraRules = ''
+    #  KERNEL=="hidraw\*", ATTRS{idProduct}=="6012", ATTRS{idVendor}=="2dc8", MODE="0660", GROUP="input"
+    #'';
 
     # greetd replaces cage. initial_session autologs in as kodi and starts sway
     # via the swayKodi wrapper (which sets all NVIDIA env vars). If sway exits,
@@ -318,13 +302,8 @@ in
       mediaLocation = "/srv/tank/photos";
       host = "0.0.0.0";
       openFirewall = true;
-      accelerationDevices = [ "cuda0" ]; # Use "renderD128" if you are using Intel/AMD
       machine-learning = {
         enable = true;
-        environment = {
-          IMMICH_MACHINE_LEARNING_PROVIDER = "cuda"; # Use "openvino" for Intel
-          LD_LIBRARY_PATH = "${pkgs.python312Packages.onnxruntime}/lib/python3.12/site-packages/onnxruntime/capi";
-        };
       };
     };
 
@@ -365,14 +344,7 @@ in
       settings.PasswordAuthentication = false;
     };
 
-    jellyfin = {
-      enable = true;
-      hardwareAcceleration = {
-        enable = true;
-        type = "nvenc";
-        device = "/dev/dri/by-path/pci-0000:01:00.0-render";
-      };
-    };
+    jellyfin = { enable = true; };
 
     nginx = {
       user = "sam";
