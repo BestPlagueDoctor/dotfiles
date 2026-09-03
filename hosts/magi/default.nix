@@ -105,6 +105,10 @@ in
       wakeOnLan.enable = true;
       ipv4.addresses = [{address = "192.168.1.70"; prefixLength = 24;}];
     };
+    # for uptime-kuma local res
+    extraHosts = ''
+      127.0.0.1 status.oreo.ooo
+    '';
     wireless.iwd.enable = false;
     firewall = {
       enable = true;
@@ -289,12 +293,7 @@ in
     smartd.enable = true;
     timesyncd.enable = true;
     udisks2.enable = true;
-
-
-    uptime-kuma = {
-      enable = true;
-      settings.NODE_OPTIONS = "--dns-result-order=ipv4first"; 
-    };
+    uptime-kuma.enable = true;
 
     #udev.packages = with pkgs; [ game-devices-udev-rules ];
     #udev.extraRules = ''
@@ -455,6 +454,7 @@ in
             '';
           in
           {
+            # allow base traffic
             "/" = {
               inherit proxyPass;
               extraConfig = commonProxy + ''
@@ -466,6 +466,15 @@ in
               proxyWebsockets = true;
               extraConfig = commonProxy;
             };
+
+            # restrict all login attempts later
+            #"/api/auth" = { return = "403"; };
+            #"/api/export" = { return = "403"; };
+            #"/dashboard" = { return = "403"; };
+            #"/login" = { return = "403"; };
+            #"/setup" = { return = "403"; };
+            #"/manage-status-page" = { return = "403"; };
+            #"/metrics" = { return = "403"; };
           };
         extraConfig = ''
           client_max_body_size 50000M;
@@ -554,9 +563,6 @@ EOF
             ${pkgs.dufs}/bin/dufs -c ${config.age.secrets.dufs.path}
           '';
         };
-      };
-      uptime-kuma.environment = {
-        RESOLV_OBJ = "nameserver 1.1.1.1";
       };
     };
   };
