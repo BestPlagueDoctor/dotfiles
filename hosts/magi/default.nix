@@ -27,7 +27,24 @@ in
     initrd.supportedFilesystems = [ "bcachefs" ];
     loader = {
       systemd-boot.enable = true;
+      systemd-boot.memtest86.enable = true;
       efi.canTouchEfiVariables = true;
+    };
+
+    # debug the crashing
+    kernelParams = [
+      "nmi_watchdog=1"
+      "panic=10"
+      "oops=panic"
+      "softlockup_panic=1"
+      "hardlockup_panic=1"
+      "processor.max_cstate=1"
+    ];
+    kernel.sysctl = {
+      "kernel.panic" = 10;
+      "kernel.panic_on_oops" = 1;
+      "kernel.hung_task_timeout_secs" = 120;
+      "kernel.sysrq" = 1;
     };
   };
 
@@ -44,7 +61,7 @@ in
   fileSystems."/srv/tank" = {
     device = "/dev/disk/by-uuid/efaaa7ec-a9eb-4a10-9b32-33b8f04c1247";
     fsType = "bcachefs";
-    options = [ "defaults" "nofail" "compression=zstd" ];
+    options = [ "defaults" "nofail" "compression=zstd" "write_error_timeout=120" "journal_flush_delay=10000" "discard" ];
   };
 
   nix = {
@@ -64,6 +81,7 @@ in
 
   # make sure it's using the right driver
   hardware = {
+    cpu.intel.updateMicrocode = true;
     # controller stuff
     xone.enable = true;
     xpadneo.enable = true;
@@ -218,6 +236,10 @@ in
       # Emergency exit — Super+Shift+e kills the sway session (greetd restarts it)
       bindsym Mod4+Shift+e exec swaymsg exit
     '';
+
+    etc."jellyfin/encoding".text = ''
+      TranscodingTempPath=/tmp/jellyfin-transcode
+    '';
   };
 
   programs = {
@@ -267,6 +289,12 @@ in
     smartd.enable = true;
     timesyncd.enable = true;
     udisks2.enable = true;
+
+
+    uptime-kuma = {
+      enable = true;
+      settings.NODE_OPTIONS = "--dns-result-order=ipv4first"; 
+    };
 
     #udev.packages = with pkgs; [ game-devices-udev-rules ];
     #udev.extraRules = ''
@@ -319,7 +347,7 @@ in
     };
 
     minecraft-server = {
-      enable = true;
+      enable = false;
       eula = true;
       openFirewall = true;
       declarative = true;
@@ -344,7 +372,10 @@ in
       settings.PasswordAuthentication = false;
     };
 
-    jellyfin = { enable = true; };
+    jellyfin = { 
+      enable = true; 
+      dataDir = "/var/lib/jellyfin";
+    };
 
     nginx = {
       user = "sam";
@@ -408,6 +439,42 @@ in
           send_timeout         600s;
         '';
       };
+
+      virtualHosts."status.oreo.ooo" = {
+        enableACME = true;
+        forceSSL = true;
+        locations =
+          let
+            proxyPass = "http://127.0.0.1:3001";
+            commonProxy = ''
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+              proxy_set_header X-Forwarded-Protocol $scheme;
+              proxy_set_header X-Forwarded-Host $http_host;
+            '';
+          in
+          {
+            "/" = {
+              inherit proxyPass;
+              extraConfig = commonProxy + ''
+                proxy_buffering off;
+              '';
+            };
+            "/socket" = {
+              inherit proxyPass;
+              proxyWebsockets = true;
+              extraConfig = commonProxy;
+            };
+          };
+        extraConfig = ''
+          client_max_body_size 50000M;
+          proxy_read_timeout   600s;
+          proxy_send_timeout   600s;
+          send_timeout         600s;
+        '';
+      };
+
 
       virtualHosts."ooo.oreo.ooo" = {
         enableACME = true;
@@ -488,6 +555,9 @@ EOF
           '';
         };
       };
+      uptime-kuma.environment = {
+        RESOLV_OBJ = "nameserver 1.1.1.1";
+      };
     };
   };
 
@@ -525,6 +595,7 @@ EOF
     acme = {
       acceptTerms = true;
       defaults.email = user.email;
+      defaults.extraLegoRenewFlags = [ "--ari-disable" ];
     };
     doas = {
       enable = true;
@@ -553,4 +624,3 @@ EOF
 
   system.stateVersion = lib.mkForce "24.11";
 }
-
